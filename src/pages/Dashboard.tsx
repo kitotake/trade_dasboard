@@ -16,12 +16,10 @@ const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
 
   const totalInvested = investments.reduce((s, i) => s + (Number(i.invested) || 0), 0);
   const totalCurrent = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
-  const totalGain = totalCurrent - totalInvested;
   const totalDiv = dividends.reduce((s, d) => s + (Number(d.amount) || 0), 0);
   const perf = parseFloat(pct(totalInvested, totalCurrent));
   const empty = investments.length === 0;
 
-  // sector breakdown
   const sectorMap: Record<string, number> = {};
   investments.forEach(i => {
     const s = i.sector || "Autre";
@@ -37,7 +35,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
 
   return (
     <div>
-      {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 28 }}>
         <KpiCard icon="💼" label="Valeur totale" value={fmtE(totalCurrent)} sub={`${perf >= 0 ? "+" : ""}${perf}% all time`} color={SCSS.accentCyan} trend={perf >= 0 ? "up" : "down"} empty={empty} />
         <KpiCard icon="🏛️" label="PEA" value={fmtE(accounts.pea)} color={SCSS.accentViolet} empty={!accounts.pea} />
@@ -46,7 +43,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginBottom: 28 }}>
-        {/* Evolution chart */}
         <div className="card fade-up fade-up-1">
           <div className="card-title">Évolution du portefeuille</div>
           {portfolioHistory.length < 2 ? (
@@ -71,7 +67,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
           )}
         </div>
 
-        {/* Sector breakdown */}
         <div className="card fade-up fade-up-2">
           <div className="card-title">Répartition sectorielle</div>
           {sectorData.length === 0 ? (
@@ -100,7 +95,6 @@ const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
         </div>
       </div>
 
-      {/* Top investments preview */}
       <div className="card fade-up fade-up-3">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span className="card-title" style={{ marginBottom: 0 }}>Positions</span>

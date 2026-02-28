@@ -42,7 +42,13 @@ const ProfilePage: React.FC<ProfileProps> = ({ data, setData }) => {
       <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
         <div className="card fade-up">
           <div className="card-title">Résumé financier</div>
-          {[["Portefeuille total", fmtE(totalCurrent)],["Total investi", fmtE(totalInvested)],["Gain total", `${totalCurrent - totalInvested >= 0 ? "+" : ""}${fmtE(totalCurrent - totalInvested)}`],["Dividendes reçus", fmtE((data.dividends||[]).reduce((s,d)=>s+(+d.amount||0),0))],["Nbre de positions", investments.length]].map(([k,v]) => (
+          {[
+            ["Portefeuille total", fmtE(totalCurrent)],
+            ["Total investi", fmtE(totalInvested)],
+            ["Gain total", `${totalCurrent - totalInvested >= 0 ? "+" : ""}${fmtE(totalCurrent - totalInvested)}`],
+            ["Dividendes reçus", fmtE((data.dividends||[]).reduce((s,d)=>s+(Number(d.amount)||0),0))],
+            ["Nbre de positions", investments.length]
+          ].map(([k,v]) => (
             <div key={k as string} style={{ display:"flex", justifyContent:"space-between", padding:"12px 0", borderBottom:`1px solid ${SCSS.borderSub}` }}>
               <span style={{ color:SCSS.textSecondary }}>{k}</span>
               <span style={{ color:SCSS.accentCyan, fontWeight:700, fontFamily:SCSS.fontMono }}>{v}</span>

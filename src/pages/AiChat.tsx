@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { SCSS } from "../utils/theme";
 import { pct } from "../utils/helpers";
-import { AppData } from "../data/accountData";
+import type { AppData } from "../data/accountData";
 
 interface AiChatProps {
   data: AppData;
@@ -26,8 +26,8 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
     setHistory(h => [...h, { role: "user", text: msg }]);
 
     const investments = data.investments || [];
-    const total = investments.reduce((s, i) => s + (+i.current || 0), 0);
-    const ctx = `Données utilisateur: portefeuille=${total}€, ${investments.length} positions: ${investments.map(i => `${i.name}(${pct(i.invested, i.current)}%)`).join(", ")}, dividendes totaux=${(data.dividends || []).reduce((s, d) => s + (+d.amount || 0), 0)}€`;
+    const total = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
+    const ctx = `Données utilisateur: portefeuille=${total}€, ${investments.length} positions: ${investments.map(i => `${i.name}(${pct(i.invested, i.current)}%)`).join(", ")}, dividendes totaux=${(data.dividends || []).reduce((s, d) => s + (Number(d.amount) || 0), 0)}€`;
 
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {

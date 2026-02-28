@@ -13,14 +13,14 @@ const Reports: React.FC<ReportsProps> = ({ data }) => {
   const dividends = data.dividends || [];
   const transactions = data.transactions || [];
 
-  const totalInvested = investments.reduce((s, i) => s + (+i.invested||0), 0);
-  const totalCurrent  = investments.reduce((s, i) => s + (+i.current ||0), 0);
-  const totalDiv = dividends.reduce((s, d) => s + (+d.amount||0), 0);
+  const totalInvested = investments.reduce((s, i) => s + (Number(i.invested)||0), 0);
+  const totalCurrent  = investments.reduce((s, i) => s + (Number(i.current) ||0), 0);
+  const totalDiv = dividends.reduce((s, d) => s + (Number(d.amount)||0), 0);
   const perf = parseFloat(pct(totalInvested, totalCurrent));
 
   const csvExport = () => {
     const csv = ["Actif,Ticker,Type,Investi,Valeur,Perf%,Gain",
-      ...investments.map(i => `${i.name},${i.ticker},${i.type},${i.invested},${i.current},${pct(i.invested,i.current)},${(+i.current||0)-(+i.invested||0)}`)
+      ...investments.map(i => `${i.name},${i.ticker},${i.type},${i.invested},${i.current},${pct(i.invested,i.current)},${(Number(i.current)||0)-(Number(i.invested)||0)}`)
     ].join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
@@ -49,7 +49,7 @@ const Reports: React.FC<ReportsProps> = ({ data }) => {
               <tbody>
                 {investments.map(inv => {
                   const p = parseFloat(pct(inv.invested, inv.current));
-                  const g = (+inv.current||0) - (+inv.invested||0);
+                  const g = (Number(inv.current)||0) - (Number(inv.invested)||0);
                   return (
                     <tr key={inv.id}>
                       <td style={{ fontWeight:600 }}>{inv.name}</td>
@@ -58,7 +58,7 @@ const Reports: React.FC<ReportsProps> = ({ data }) => {
                       <td style={{ fontFamily:SCSS.fontMono, fontWeight:600 }}>{fmtE(inv.current)}</td>
                       <td><span className={`badge ${p >= 0 ? "badge-green" : "badge-red"}`}>{p >= 0 ? "+" : ""}{p}%</span></td>
                       <td style={{ color:g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily:SCSS.fontMono }}>{g >= 0 ? "+" : ""}{fmtE(g)}</td>
-                      <td><span className="badge" style={{ background:`${SCSS.accentRed}18`, color:SCSS.accentRed||SCSS.textSecondary }}>{inv.risk}</span></td>
+                      <td><span className="badge" style={{ background:`${SCSS.accentRed}18`, color:SCSS.accentRed }}>{inv.risk}</span></td>
                     </tr>
                   );
                 })}
@@ -80,9 +80,9 @@ const Reports: React.FC<ReportsProps> = ({ data }) => {
           <div>
             <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginBottom:16 }}>
               {(()=>{
-                const achats = transactions.filter(t => t.type === "Achat").reduce((s,t)=>s+(+t.amount||0),0);
-                const ventes = transactions.filter(t => t.type === "Vente").reduce((s,t)=>s+(+t.amount||0),0);
-                const depots = transactions.filter(t => t.type === "Dépôt").reduce((s,t)=>s+(+t.amount||0),0);
+                const achats = transactions.filter(t => t.type === "Achat").reduce((s,t)=>s+(Number(t.amount)||0),0);
+                const ventes = transactions.filter(t => t.type === "Vente").reduce((s,t)=>s+(Number(t.amount)||0),0);
+                const depots = transactions.filter(t => t.type === "Dépôt").reduce((s,t)=>s+(Number(t.amount)||0),0);
                 return [["Total achats", fmtE(achats)], ["Total ventes", fmtE(ventes)], ["Total dépôts", fmtE(depots)]].map(([k,v]) => (
                   <div key={k as string} style={{ background:"rgba(255,255,255,0.04)", borderRadius:SCSS.radiusSm, padding:"12px 14px" }}>
                     <div style={{ color:SCSS.textMuted, fontSize:11, marginBottom:4 }}>{k}</div>

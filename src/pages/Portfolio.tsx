@@ -35,9 +35,10 @@ const Portfolio: React.FC<PortfolioProps> = ({ data, setData }) => {
   };
 
   if (detail) {
-    const inv = investments.find(i => i.id === detail)!;
+    const inv = investments.find(i => i.id === detail);
+    if (!inv) { setDetail(null); return null; }
     const p = parseFloat(pct(inv.invested, inv.current));
-    const g = (+inv.current||0) - (+inv.invested||0);
+    const g = (Number(inv.current)||0) - (Number(inv.invested)||0);
     return (
       <div>
         <button className="btn-ghost" style={{ marginBottom:20 }} onClick={() => setDetail(null)}>← Retour</button>
@@ -90,7 +91,8 @@ const Portfolio: React.FC<PortfolioProps> = ({ data, setData }) => {
             <tbody>
               {investments.map(inv => {
                 const p = parseFloat(pct(inv.invested, inv.current));
-                const g = (+inv.current||0) - (+inv.invested||0);
+                const g = (Number(inv.current)||0) - (Number(inv.invested)||0);
+                const riskColor = inv.risk ? (RISK_COLORS[inv.risk] || SCSS.textSecondary) : SCSS.textSecondary;
                 return (
                   <tr key={inv.id} style={{ cursor:"pointer" }}>
                     <td onClick={() => setDetail(inv.id)}>
@@ -102,7 +104,7 @@ const Portfolio: React.FC<PortfolioProps> = ({ data, setData }) => {
                     <td style={{ fontFamily:SCSS.fontMono, fontWeight:600 }}>{fmtE(inv.current)}</td>
                     <td><span className={`badge ${p >= 0 ? "badge-green" : "badge-red"}`}>{p >= 0 ? "+" : ""}{p}%</span></td>
                     <td style={{ color:g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily:SCSS.fontMono }}>{g >= 0 ? "+" : ""}{fmtE(g)}</td>
-                    <td><span className="badge" style={{ background:`${RISK_COLORS[inv.risk]}18`, color:RISK_COLORS[inv.risk]||SCSS.textSecondary }}>{inv.risk}</span></td>
+                    <td><span className="badge" style={{ background:`${riskColor}18`, color:riskColor }}>{inv.risk}</span></td>
                     <td>
                       <div style={{ display:"flex", gap:6 }}>
                         <button className="btn-ghost" style={{ padding:"4px 10px", fontSize:12 }} onClick={() => openEdit(inv)}>✏️</button>

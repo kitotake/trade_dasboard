@@ -17,7 +17,7 @@ const Goals: React.FC<GoalsProps> = ({ data, setData }) => {
   const EMPTY: Goal = { id:"", name:"", target:"", current:"", deadline:"", color:SCSS.accentCyan, note:"" };
   const [form, setForm] = useState<Goal>(EMPTY);
   const goals = data.goals || [];
-  const totalPortfolio = (data.investments||[]).reduce((s, i) => s + (+i.current||0), 0);
+  const totalPortfolio = (data.investments||[]).reduce((s, i) => s + (Number(i.current)||0), 0);
 
   const del = (id: string) => setData(d => ({...d, goals: d.goals.filter(g => g.id !== id)}));
   const save = () => {

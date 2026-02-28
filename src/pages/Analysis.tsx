@@ -81,16 +81,15 @@ const Analysis: React.FC<AnalysisProps> = ({ data }) => {
             </div>
           </div>
 
-          {/* Allocation */}
           <div className="card fade-up fade-up-2">
             <div className="card-title">Allocation détaillée</div>
             <table className="data-table">
               <thead><tr><th>Actif</th><th>Secteur</th><th>Région</th><th>% du portefeuille</th><th>Valeur</th><th>Perf.</th></tr></thead>
               <tbody>
                 {(()=>{
-                  const total = investments.reduce((s, i) => s + (+i.current||0), 0);
-                  return investments.sort((a,b) => (+b.current||0) - (+a.current||0)).map(inv => {
-                    const share = total > 0 ? ((+inv.current||0) / total * 100).toFixed(1) : 0;
+                  const total = investments.reduce((s, i) => s + (Number(i.current)||0), 0);
+                  return investments.sort((a,b) => (Number(b.current)||0) - (Number(a.current)||0)).map(inv => {
+                    const share = total > 0 ? ((Number(inv.current)||0) / total * 100).toFixed(1) : 0;
                     const p = parseFloat(pct(inv.invested, inv.current));
                     return (
                       <tr key={inv.id}>
