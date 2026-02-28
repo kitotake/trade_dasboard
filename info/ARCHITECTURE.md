@@ -1,17 +1,18 @@
-# 🏗️ ARCHITECTURE – FinanceFlow
+# 🏗️ ARCHITECTURE – trade-dashboard
 
 ## Vue d'ensemble du projet
 
-**FinanceFlow** est une application web de gestion financière personnelle construite avec **React + TypeScript**. Elle permet aux utilisateurs de suivre leurs revenus, dépenses, investissements et objectifs financiers.
+**trade-dashboard** est une application web de gestion financière personnelle construite avec **React + TypeScript**. Elle permet de suivre investissements, transactions, dividendes, objectifs financiers, et inclut un assistant IA intégré.
 
 ### Stack Technologique
-- **Framework** : React 18+
-- **Langage** : TypeScript
-- **Navigation** : React Router v6
-- **État** : Context API + useReducer
-- **Stockage** : localStorage pour la persistance locale
-- **UI** : CSS Modules / Tailwind CSS
-- **Graphiques** : Chart.js / Recharts
+- **Framework** : React 19+
+- **Langage** : TypeScript strict
+- **Build** : Vite 7
+- **Navigation** : State-based (useState dans App.tsx)
+- **État** : Props drilling local — pas de Context API
+- **Stockage** : localStorage (`trade-dashboard_data_v1`)
+- **Graphiques** : Recharts 3
+- **Styles** : SCSS global + CSS Modules
 - **Devise** : EUR (€)
 - **Locale** : fr-FR
 
@@ -22,341 +23,273 @@
 ```
 trade-dashboard/
 │
-├── .github/
-│   ├── ARCHITECTURE.md (ce fichier)
+├── info/
+│   ├── ARCHITECTURE.md
 │   ├── NAVIGATION.md
-│   ├── IMPORTS_ANALYSIS.md
-│   └── copilot-instructions.md
+│   └── IMPORTS_ANALYSIS.md
 │
 ├── src/
-│   ├── App.tsx
-│   ├── main.tsx
+│   ├── App.tsx               ← Point d'entrée principal (layout + navigation)
+│   ├── main.tsx              ← Bootstrap React (monte RootNavigator)
 │   ├── custom.d.ts
 │   │
 │   ├── auth/
 │   │   ├── LoginScreen.tsx
 │   │   ├── RegisterScreen.tsx
-│   │   ├── WelcomeScreen.tsx
-│   │   ├── services/
-│   │   │   ├── AuthService.ts
-│   │   │   └── TokenManager.ts
-│   │   ├── context/
-│   │   │   └── AuthContext.tsx
-│   │   └── types/
-│   │       └── auth.types.ts
+│   │   └── WelcomeScreen.tsx
 │   │
 │   ├── navigation/
-│   │   ├── AppNavigator.tsx (composant principal)
-│   │   ├── types.ts
-│   │   └── README.md
+│   │   ├── RootNavigator.tsx     ← Gère auth vs app
+│   │   ├── AuthNavigator.tsx     ← Flux welcome → login → register
+│   │   └── AppNavigator.tsx      ← (legacy, non utilisé dans App.tsx)
 │   │
 │   ├── pages/
-│   │   ├── Accueil.tsx
-│   │   ├── Dashboard.tsx
-│   │   ├── Portfolio.tsx
-│   │   ├── Transactions.tsx
-│   │   ├── Dividendes.tsx
-│   │   ├── Goals.tsx
-│   │   ├── Analysis.tsx
-│   │   ├── Simulation.tsx
-│   │   ├── Reports.tsx
-│   │   ├── Profile.tsx
-│   │   ├── Settings.tsx
-│   │   └── DetailsInvestissement.tsx
+│   │   ├── Accueil.tsx           ← Stub vide (legacy)
+│   │   ├── Dashboard.tsx         ← Page principale KPI + graphiques
+│   │   ├── Portfolio.tsx         ← Gestion des investissements
+│   │   ├── Transactions.tsx      ← Historique des transactions
+│   │   ├── Dividends.tsx         ← Dividendes reçus
+│   │   ├── Dividendes.tsx        ← Stub → redirige vers Dividends.tsx
+│   │   ├── Goals.tsx             ← Objectifs financiers
+│   │   ├── Analysis.tsx          ← Analyse / graphiques de performance
+│   │   ├── Simulation.tsx        ← Simulateur d'intérêts composés
+│   │   ├── Reports.tsx           ← Rapports + export CSV
+│   │   ├── Notifications.tsx     ← Alertes personnalisées
+│   │   ├── Profile.tsx           ← Profil utilisateur
+│   │   ├── Settings.tsx          ← Paramètres + reset données
+│   │   ├── AiChat.tsx            ← Assistant IA (appel API Anthropic)
+│   │   ├── DetailsInvestissement.tsx ← Détail d'un investissement
+│   │   └── Portefeuille.tsx      ← Stub → redirige vers Portfolio.tsx
 │   │
 │   ├── components/
-│   │   ├── common/
-│   │   │   ├── Header.tsx
-│   │   │   ├── Footer.tsx
-│   │   │   ├── Loading.tsx
-│   │   │   └── ErrorBoundary.tsx
-│   │   ├── cards/
-│   │   │   ├── TransactionCard.tsx
-│   │   │   ├── InvestmentCard.tsx
-│   │   │   ├── KpiCard.tsx
-│   │   │   └── SummaryCard.tsx
-│   │   ├── forms/
-│   │   │   ├── FormField.tsx
-│   │   │   ├── TransactionForm.tsx
-│   │   │   └── GoalForm.tsx
-│   │   ├── modals/
-│   │   │   ├── Modal.tsx
-│   │   │   ├── ConfirmModal.tsx
-│   │   │   └── AddTransactionModal.tsx
-│   │   └── charts/
-│   │       ├── ExpenseChart.tsx
-│   │       ├── IncomeChart.tsx
-│   │       ├── PortfolioChart.tsx
-│   │       └── GoalChart.tsx
+│   │   ├── EmptyState.tsx        ← État vide réutilisable
+│   │   ├── FormField.tsx         ← Wrapper label + input
+│   │   ├── KpiCard.tsx           ← Carte KPI avec trend
+│   │   ├── Modal.tsx             ← Modale générique
+│   │   └── SummaryCard.tsx       ← Carte résumé (legacy)
 │   │
-│   ├── store/
-│   │   ├── context/
-│   │   │   ├── DataContext.tsx
-│   │   │   ├── ThemeContext.tsx
-│   │   │   ├── CurrencyContext.tsx
-│   │   │   └── AuthContext.tsx
-│   │   ├── reducers/
-│   │   │   ├── transactionReducer.ts
-│   │   │   ├── portfolioReducer.ts
-│   │   │   └── types.ts
-│   │   └── hooks/
-│   │       ├── useAuth.ts
-│   │       ├── useData.ts
-│   │       ├── useTheme.ts
-│   │       └── useCurrency.ts
-│   │
-│   ├── services/
-│   │   ├── api/
-│   │   │   ├── apiClient.ts
-│   │   │   ├── endpoints.ts
-│   │   │   └── types.ts
-│   │   ├── storage/
-│   │   │   ├── StorageService.ts
-│   │   │   └── keys.ts
-│   │   └── analytics/
-│   │       └── AnalyticsService.ts
+│   ├── data/
+│   │   └── accountData.ts        ← Types, état initial, localStorage
 │   │
 │   ├── utils/
-│   │   ├── formatters.ts
-│   │   ├── validators.ts
-│   │   ├── calculations.ts
-│   │   ├── dateUtils.ts
-│   │   └── constants.ts
+│   │   ├── devCredentials.ts     ← Utilisateurs de test (login)
+│   │   ├── helpers.ts            ← fmt, fmtE, pct, uid
+│   │   ├── theme.ts              ← Constantes SCSS, couleurs, PAGES
+│   │   └── types.ts              ← Types navigation + données (legacy)
 │   │
-│   ├── types/
-│   │   ├── index.ts
-│   │   ├── models.ts
-│   │   └── api.types.ts
-│   │
-│   ├── styles/
-│   │   ├── global.scss
-│   │   ├── variables.scss
-│   │   ├── Accueil.module.scss
-│   │   └── ...autres
-│   │
-│   ├── assets/
-│   │   ├── images/
-│   │   ├── icons/
-│   │   └── fonts/
-│   │
-│   └── data/
-│       └── accountData.ts
+│   └── styles/
+│       ├── global.scss           ← Styles globaux, classes utilitaires
+│       ├── Auth.module.scss      ← Styles login/register/welcome
+│       ├── Accueil.module.scss
+│       ├── SummaryCard.module.scss
+│       ├── Dividendes.module.scss
+│       ├── Portefeuille.module.scss
+│       └── DetailsInvestissement.module.scss
 │
-├── app.json
-├── tsconfig.json
-├── vite.config.ts
+├── public/
 ├── package.json
-└── README.md
+├── vite.config.ts
+└── tsconfig.json
 ```
 
 ---
 
-## 🔐 Authentification & Rôles
+## 🔐 Authentification
 
-### Types d'Utilisateurs
-```typescript
-enum UserRole {
-  USER = "user",
-  PREMIUM = "premium",
-  ADMIN = "admin"
-}
+L'authentification est **simulée localement** — aucun backend, aucun JWT réel.
 
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: UserRole;
-  createdAt: Date;
-  lastLogin: Date;
-}
+### Flux
+```
+RootNavigator (mode: "auth")
+  → AuthNavigator
+      → WelcomeScreen → LoginScreen / RegisterScreen
+  → onAuthSuccess() → RootNavigator (mode: "app")
+  → AppNavigator (legacy) ou App.tsx
 ```
 
-### Permissions par Rôle
+### Utilisateurs de test (`src/utils/devCredentials.ts`)
+| Email | Mot de passe |
+|---|---|
+| dev@test.com | Dev123! |
+| alice@example.com | password123 |
+| bob@example.com | password123 |
 
-| Fonctionnalité | USER | PREMIUM | ADMIN |
-|---|---|---|---|
-| Dashboard | ✅ | ✅ | ✅ |
-| Transactions | ✅ | ✅ | ✅ |
-| Portfolio | ❌ | ✅ | ✅ |
-| Analyses avancées | ❌ | ✅ | ✅ |
-| Rapports | ❌ | ✅ | ✅ |
-| Export données | ❌ | ✅ | ✅ |
-| Gestion utilisateurs | ❌ | ❌ | ✅ |
+> ⚠️ La vérification se fait côté client dans `LoginScreen.tsx` par comparaison directe avec `TEST_USERS`.
 
 ---
 
 ## 💾 Persistance des données
 
-### localStorage Structure
-```typescript
-const STORAGE_KEYS = {
-  USER: "financeflow:user",
-  AUTH_TOKEN: "financeflow:token",
-  TRANSACTIONS: "financeflow:transactions",
-  PORTFOLIO: "financeflow:portfolio",
-  GOALS: "financeflow:goals",
-  SETTINGS: "financeflow:settings",
-  THEME: "financeflow:theme"
-};
+Toutes les données sont stockées dans `localStorage` avec la clé :
+
+```
+trade-dashboard_data_v1
 ```
 
-### Service de Stockage
+### Structure `AppData` (`src/data/accountData.ts`)
 ```typescript
-// filepath: src/services/storage/StorageService.ts
-export class StorageService {
-  static saveUser(user: User): void {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-  }
-
-  static getUser(): User | null {
-    const data = localStorage.getItem(STORAGE_KEYS.USER);
-    return data ? JSON.parse(data) : null;
-  }
-
-  static clearAll(): void {
-    Object.values(STORAGE_KEYS).forEach(key => {
-      localStorage.removeItem(key);
-    });
-  }
+interface AppData {
+  investments: Investment[];
+  transactions: Transaction[];
+  dividends: Dividend[];
+  goals: Goal[];
+  notifications: Notification[];
+  portfolioHistory: PortfolioHistoryItem[];
+  accounts: { pea?: number; cc?: number };
+  profile: Profile;
+  settings: Settings;
 }
+```
+
+### Fonctions clés
+```typescript
+loadFromStorage(): AppData     // Appelée au démarrage (initialData)
+saveToStorage(data): void      // Appelée à chaque changement dans App.tsx (useEffect)
+clearStorage(): void           // Réinitialisation depuis Settings.tsx
+withAutoSnapshot(data): AppData // Auto-snapshot mensuel du portefeuille
 ```
 
 ---
 
-## 🎨 Thème Dark / Light
+## 🧭 Navigation (réelle)
 
-### Système de Couleurs
+La navigation principale est gérée dans **`App.tsx`** via un simple `useState<string>`.
+
 ```typescript
-// filepath: src/theme/colors.ts
-const lightTheme = {
-  background: "#FFFFFF",
-  surface: "#F5F5F5",
-  primary: "#2E7D32",
-  secondary: "#1976D2",
-  danger: "#D32F2F",
-  text: "#212121",
-  textSecondary: "#757575",
-  border: "#E0E0E0"
-};
+// App.tsx
+const [page, setPage] = useState<string>("dashboard");
 
-const darkTheme = {
-  background: "#121212",
-  surface: "#1E1E1E",
-  primary: "#66BB6A",
-  secondary: "#64B5F6",
-  danger: "#EF5350",
-  text: "#FFFFFF",
-  textSecondary: "#BDBDBD",
-  border: "#424242"
-};
+// Rendu conditionnel
+switch (page) {
+  case "dashboard":     return <Dashboard data={data} setPage={setPage} />;
+  case "portfolio":     return <Portfolio data={data} setData={handleSetData} />;
+  // ...
+}
 ```
+
+La sidebar liste toutes les pages via `PAGES` (défini dans `src/utils/theme.ts`).
+
+### Pages disponibles
+| id | Composant | Description |
+|---|---|---|
+| dashboard | Dashboard.tsx | KPI, graphiques, positions |
+| portfolio | Portfolio.tsx | Gestion investissements |
+| transactions | Transactions.tsx | Historique achats/ventes |
+| dividends | Dividends.tsx | Dividendes reçus |
+| goals | Goals.tsx | Objectifs financiers |
+| analysis | Analysis.tsx | Performance et allocation |
+| simulation | Simulation.tsx | Simulateur intérêts composés |
+| reports | Reports.tsx | Rapports + export CSV |
+| notifications | Notifications.tsx | Alertes personnalisées |
+| profile | Profile.tsx | Profil utilisateur |
+| settings | Settings.tsx | Paramètres + reset |
+
+---
+
+## 🤖 Assistant IA (`AiChat.tsx`)
+
+Appel direct à l'API Anthropic depuis le frontend :
+
+```typescript
+fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    model: "claude-sonnet-4-20250514",
+    max_tokens: 1000,
+    system: `Tu es un assistant financier expert. ${ctx}`,
+    messages: [...]
+  })
+});
+```
+
+Le contexte injecté inclut : valeur totale du portefeuille, liste des positions, dividendes totaux.
 
 ---
 
 ## 📊 Modèles de Données
 
-### Transaction
-```typescript
-interface Transaction {
-  id: string;
-  userId: string;
-  type: "income" | "expense" | "transfer";
-  category: string;
-  amount: number;
-  description: string;
-  date: Date;
-}
-```
-
-### Investissement
 ```typescript
 interface Investment {
   id: string;
-  userId: string;
   name: string;
-  type: "stock" | "crypto" | "etf" | "bond";
-  quantity: number;
-  purchasePrice: number;
-  currentPrice: number;
-  purchaseDate: Date;
+  ticker?: string;
+  type?: string;        // Action, ETF, Obligation, SCPI, Crypto, Autre
+  sector?: string;
+  region?: string;
+  invested?: number | string;
+  current?: number | string;
+  shares?: number | string;
+  risk?: string;        // Faible, Moyen, Élevé
+  notes?: string;
+}
+
+interface Transaction {
+  id: string;
+  date: string;         // YYYY-MM-DD
+  type: string;         // Achat, Vente, Dividende, Dépôt, Retrait, Autre
+  asset: string;
+  amount?: number | string;
+  shares?: number | string;
+  price?: number | string;
+  note?: string;
+}
+
+interface Dividend {
+  id: string;
+  date: string;
+  company: string;
+  ticker?: string;
+  amount?: number | string;
+  type?: string;        // Dividende, Coupon, Loyer SCPI, Intérêts, Autre
+  note?: string;
+}
+
+interface Goal {
+  id: string;
+  name: string;
+  target?: number | string;
+  current?: number | string;  // Si vide = valeur totale du portefeuille
+  deadline?: string;
+  color?: string;
+  note?: string;
 }
 ```
 
 ---
 
-## 🔌 API Endpoints
+## 🎨 Thème
 
-| Méthode | Endpoint | Auth | Description |
-|---------|----------|------|-------------|
-| POST | `/auth/register` | ❌ | Créer compte |
-| POST | `/auth/login` | ❌ | Connexion |
-| GET | `/users/me` | ✅ | Profil |
-| POST | `/transactions` | ✅ | Créer transaction |
-| GET | `/transactions` | ✅ | Lister |
-| PUT | `/transactions/:id` | ✅ | Modifier |
-| DELETE | `/transactions/:id` | ✅ | Supprimer |
+Toutes les constantes de style sont dans `src/utils/theme.ts` (objet `SCSS`).
+Les classes utilitaires globales (`.card`, `.btn-primary`, `.badge-*`, `.kpi-card`, `.data-table`, etc.) sont dans `src/styles/global.scss`.
 
----
-
-## 🎯 Conventions
-
-### Nommage
-- **Composants** : PascalCase (Dashboard.tsx)
-- **Hooks** : camelCase + "use" (useAuth.ts)
-- **Services** : PascalCase + "Service" (AuthService.ts)
-- **Utils** : camelCase (formatters.ts)
-
-### Composants
 ```typescript
-// filepath: src/components/cards/TransactionCard.tsx
-interface Props {
-  transaction: Transaction;
-  onPress?: () => void;
-}
-
-export function TransactionCard({ transaction, onPress }: Props) {
-  return (
-    <div className={styles.container}>
-      <span>{transaction.category}</span>
-      <span>{transaction.amount.toFixed(2)} €</span>
-    </div>
-  );
-}
+export const SCSS = {
+  bgBase: "#08090D",
+  bgSurface: "#0D0F17",
+  accentCyan: "#6EE7F7",
+  accentViolet: "#B197FC",
+  accentGreen: "#34D399",
+  accentAmber: "#FCD34D",
+  accentRed: "#F87171",
+  fontDisplay: "'Playfair Display', Georgia, serif",
+  fontMono: "'JetBrains Mono', monospace",
+  // ...
+};
 ```
 
 ---
 
-## 📱 Gestion État
+## ⚡ Utilitaires (`src/utils/helpers.ts`)
 
-### Context API Pattern
 ```typescript
-// filepath: src/store/context/DataContext.tsx
-export function useData() {
-  const context = useContext(DataContext);
-  if (!context) {
-    throw new Error("useData must be used within DataProvider");
-  }
-  return context;
-}
+fmt(v, dec?)   // Formate un nombre en fr-FR
+fmtE(v)        // Formate en euros : "1 234,56 €"
+pct(invested, current)  // Calcule la performance en %
+uid()          // Génère un ID aléatoire court
 ```
 
 ---
 
-## ✅ Résumé
-
-| Aspect | Solution |
-|--------|----------|
-| Framework | React 18+ |
-| Langage | TypeScript strict |
-| Navigation | AppNavigator (state-based) |
-| État | Context API |
-| Stockage | localStorage |
-| Auth | JWT |
-| Thème | Dark/Light |
-| Devise | EUR |
-
----
-
-**Version** : 1.0  
-**Dernière mise à jour** : 28 février 2026
+**Version** : 2.0
+**Dernière mise à jour** : 1 mars 2026

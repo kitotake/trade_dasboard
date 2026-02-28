@@ -2,206 +2,318 @@
 
 ## Vue d'ensemble
 
-Ce document analyse les imports de chaque page pour vérifier :
-- ✅ Tous les imports sont utilisés
-- ✅ Pas de dépendances manquantes
-- ✅ Optimisation des performances
+Analyse des imports réels de chaque fichier source.
+Dernière mise à jour : **1 mars 2026**
 
 ---
 
-## 📱 Analyse par Page
+## 🗂️ Point d'entrée
 
-### Accueil.tsx
+### `src/main.tsx`
 ```typescript
-import React from "react";
-import { useState } from "react";
-import { useTheme } from "../store/hooks/useTheme";
+import { StrictMode } from 'react';
+import ReactDOM from 'react-dom/client';
+import RootNavigator from './navigation/RootNavigator';
+import './styles/global.scss';
 ```
-**Status** : ✅ OK  
-**Note** : Page d'accueil simple, imports minimaux
+**Status** : ✅ OK
 
 ---
 
-### Dashboard.tsx
+### `src/App.tsx`
 ```typescript
-import React from "react";
 import { useState, useEffect } from "react";
-import { useAuthContext } from "../store/context/AuthContext";
+import { SCSS, GLOBAL_CSS, PAGES } from "./utils/theme";
+import { fmtE } from "./utils/helpers";
+import { initialData, type AppData, saveToStorage, clearStorage, withAutoSnapshot } from "./data/accountData";
+import Dashboard from "./pages/Dashboard";
+import Portfolio from "./pages/Portfolio";
+import Transactions from "./pages/Transactions";
+import Dividends from "./pages/Dividends";
+import Goals from "./pages/Goals";
+import Analysis from "./pages/Analysis";
+import Simulation from "./pages/Simulation";
+import Reports from "./pages/Reports";
+import Notifications from "./pages/Notifications";
+import ProfilePage from "./pages/Profile";
+import Settings from "./pages/Settings";
+import AiChat from "./pages/AiChat";
+import "./styles/global.scss";
+```
+**Status** : ✅ OK — tous les imports utilisés
+
+---
+
+## 🔐 Auth
+
+### `src/auth/LoginScreen.tsx`
+```typescript
+import { useState, type FormEvent } from "react";
+import { DEV_CREDENTIALS, TEST_USERS } from "../utils/devCredentials";
+import styles from "../styles/Auth.module.scss";
+```
+**Status** : ✅ OK
+**Note** : `DEV_CREDENTIALS` importé mais uniquement référencé pour forcer le chargement hot reload. La vérification utilise `TEST_USERS`.
+
+### `src/auth/RegisterScreen.tsx`
+```typescript
+import { useState, type FormEvent } from "react";
+import styles from "../styles/Auth.module.scss";
+```
+**Status** : ✅ OK
+
+### `src/auth/WelcomeScreen.tsx`
+```typescript
+import styles from "../styles/Auth.module.scss";
+```
+**Status** : ✅ OK
+
+---
+
+## 🧭 Navigation
+
+### `src/navigation/RootNavigator.tsx`
+```typescript
+import { useState } from "react";
+import type { RootState } from "../utils/types";
+import AuthNavigator from "./AuthNavigator";
+import AppNavigator from "./AppNavigator";
+```
+**Status** : ✅ OK
+
+### `src/navigation/AuthNavigator.tsx`
+```typescript
+import { useState } from "react";
+import type { AuthRoute } from "../utils/types";
+import WelcomeScreen from "../auth/WelcomeScreen";
+import LoginScreen from "../auth/LoginScreen";
+import RegisterScreen from "../auth/RegisterScreen";
+```
+**Status** : ✅ OK
+
+### `src/navigation/AppNavigator.tsx`
+```typescript
+import { useState } from "react";
+import type { AppRoute } from "../utils/types";
+import { initialData, type AppData } from "../data/accountData";
+import Accueil from "../pages/Accueil";
+import Dashboard from "../pages/Dashboard";
+// ... toutes les pages
+```
+**Status** : ⚠️ LEGACY — non utilisé par `App.tsx`, mais conservé pour compatibilité.
+
+---
+
+## 📄 Pages
+
+### `src/pages/Dashboard.tsx`
+```typescript
+import type { FC } from "react";
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
 import KpiCard from "../components/KpiCard";
-import SummaryCard from "../components/SummaryCard";
+import EmptyState from "../components/EmptyState";
+import { SCSS, SECTOR_COLORS } from "../utils/theme";
+import { fmtE, pct } from "../utils/helpers";
+import type { AppData } from "../data/accountData";
 ```
-**Status** : ✅ OK  
-**Note** : Tous les imports utilisés
-**Performance** : Bonne, utilise memoization si KPI calc complexe
+**Status** : ✅ OK
 
----
-
-### Portfolio.tsx
+### `src/pages/Portfolio.tsx`
 ```typescript
-import React from "react";
-import InvestmentCard from "../components/cards/InvestmentCard";
-import PortfolioChart from "../components/charts/PortfolioChart";
-import { useData } from "../store/hooks/useData";
-```
-**Status** : ✅ OK  
-**Performance** : Utiliser React.memo() si liste longue
-
----
-
-### Transactions.tsx
-```typescript
-import React from "react";
 import { useState } from "react";
-import TransactionCard from "../components/cards/TransactionCard";
-import { useData } from "../store/hooks/useData";
+import KpiCard from "../components/KpiCard";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
 import FormField from "../components/FormField";
-```
-**Status** : ✅ OK  
-**Performance** : Virtual scrolling recommandé si >100 items
-
----
-
-### Dividendes.tsx
-```typescript
-import React from "react";
-import SummaryCard from "../components/SummaryCard";
-import ExpenseChart from "../components/charts/ExpenseChart";
+import { SCSS, RISK_COLORS } from "../utils/theme";
+import { fmtE, pct, uid } from "../utils/helpers";
+import type { Investment, AppData } from "../data/accountData";
 ```
 **Status** : ✅ OK
 
----
-
-### Goals.tsx
+### `src/pages/Transactions.tsx`
 ```typescript
-import React from "react";
-import { useState } from "react";
-import GoalCard from "../components/cards/GoalCard";
-import GoalForm from "../components/forms/GoalForm";
-import { useData } from "../store/hooks/useData";
-```
-**Status** : ✅ OK
-
----
-
-### Analysis.tsx
-```typescript
-import React from "react";
-import {
-  IncomeChart,
-  ExpenseChart,
-  PortfolioChart
-} from "../components/charts";
-import { useData } from "../store/hooks/useData";
-```
-**Status** : ✅ OK  
-**Note** : Lazy load charts pour performance
-
----
-
-### Simulation.tsx
-```typescript
-import React from "react";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
 import FormField from "../components/FormField";
-import { FinancialCalculations } from "../utils/calculations";
+import { SCSS } from "../utils/theme";
+import { fmtE, uid } from "../utils/helpers";
+import type { Transaction, AppData } from "../data/accountData";
 ```
 **Status** : ✅ OK
 
----
-
-### Reports.tsx
+### `src/pages/Dividends.tsx`
 ```typescript
-import React from "react";
 import { useState } from "react";
-import { useData } from "../store/hooks/useData";
-import ExportButton from "../components/ExportButton";
-```
-**Status** : ✅ OK
-
----
-
-### Profile.tsx
-```typescript
-import React from "react";
-import { useAuthContext } from "../store/context/AuthContext";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
 import FormField from "../components/FormField";
-import { useTheme } from "../store/hooks/useTheme";
+import { SCSS } from "../utils/theme";
+import { fmtE, uid } from "../utils/helpers";
+import type { Dividend, AppData } from "../data/accountData";
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 ```
-**Status** : ✅ OK
+**Status** : ✅ OK — `FC` manquant dans l'import React (type implicite, pas d'erreur en pratique)
 
----
-
-### Settings.tsx
+### `src/pages/Goals.tsx`
 ```typescript
-import React from "react";
 import { useState } from "react";
-import { useTheme } from "../store/hooks/useTheme";
-import Toggle from "../components/Toggle";
-import { StorageService } from "../services/storage/StorageService";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
+import FormField from "../components/FormField";
+import { SCSS } from "../utils/theme";
+import { fmtE, uid } from "../utils/helpers";
+import type { Goal, AppData } from "../data/accountData";
+```
+**Status** : ✅ OK — `FC` utilisé sans import explicite (même remarque que Dividends)
+
+### `src/pages/Analysis.tsx`
+```typescript
+import type { FC } from "react";
+import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Cell } from "recharts";
+import EmptyState from "../components/EmptyState";
+import { SCSS } from "../utils/theme";
+import { pct, fmtE } from "../utils/helpers";
+import type { AppData } from "../data/accountData";
+```
+**Status** : ✅ OK
+
+### `src/pages/Simulation.tsx`
+```typescript
+import { useState } from "react";
+import EmptyState from "../components/EmptyState";
+import KpiCard from "../components/KpiCard";
+import FormField from "../components/FormField";
+import { SCSS } from "../utils/theme";
+import { fmtE } from "../utils/helpers";
+import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import type { AppData } from "../data/accountData";
+```
+**Status** : ✅ OK — `data` prop reçue mais non utilisée (simulateur autonome)
+
+### `src/pages/Reports.tsx`
+```typescript
+import type { FC } from "react";
+import EmptyState from "../components/EmptyState";
+import { SCSS } from "../utils/theme";
+import { fmtE, pct } from "../utils/helpers";
+import type { AppData } from "../data/accountData";
+```
+**Status** : ✅ OK
+
+### `src/pages/Notifications.tsx`
+```typescript
+import { useState } from "react";
+import { SCSS } from "../utils/theme";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
+import FormField from "../components/FormField";
+import { uid } from "../utils/helpers";
+import type { Notification, AppData } from "../data/accountData";
+```
+**Status** : ✅ OK — `FC` utilisé sans import explicite
+
+### `src/pages/Profile.tsx`
+```typescript
+import { useState } from "react";
+import EmptyState from "../components/EmptyState";
+import Modal from "../components/Modal";
+import FormField from "../components/FormField";
+import { SCSS } from "../utils/theme";
+import { fmtE } from "../utils/helpers";
+import type { AppData, Profile } from "../data/accountData";
+```
+**Status** : ✅ OK — `FC` utilisé sans import explicite
+
+### `src/pages/Settings.tsx`
+```typescript
+import { type Dispatch, type SetStateAction } from "react";
+import { SCSS } from "../utils/theme";
+import { clearStorage } from "../data/accountData";
+import type { AppData } from "../data/accountData";
+```
+**Status** : ✅ OK
+
+### `src/pages/AiChat.tsx`
+```typescript
+import { useState, useRef, useEffect } from "react";
+import { SCSS } from "../utils/theme";
+import { pct } from "../utils/helpers";
+import type { AppData } from "../data/accountData";
 ```
 **Status** : ✅ OK
 
 ---
 
-## 🔍 Checklist Imports
+## 🧩 Composants
 
-| Page | React | Hooks | Context | Components | Utils | Status |
-|------|-------|-------|---------|-----------|-------|--------|
-| Accueil | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ OK |
-| Dashboard | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Portfolio | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Transactions | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Dividendes | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ OK |
-| Goals | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Analysis | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Simulation | ✅ | ✅ | ❌ | ✅ | ✅ | ✅ OK |
-| Reports | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Profile | ✅ | ✅ | ✅ | ✅ | ❌ | ✅ OK |
-| Settings | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ OK |
+### `src/components/KpiCard.tsx`
+```typescript
+import type { FC, ReactNode } from "react";
+import { SCSS } from "../utils/theme";
+```
+**Status** : ⚠️ `ReactNode` importé mais non utilisé dans les props (props utilisent `React.ReactNode` via JSX implicite)
+
+### `src/components/Modal.tsx`
+```typescript
+import type { FC, ReactNode } from "react";
+```
+**Status** : ⚠️ Même remarque que KpiCard
+
+### `src/components/EmptyState.tsx`
+```typescript
+import type { FC, ReactNode } from "react";
+```
+**Status** : ⚠️ `ReactNode` importé, `React.ReactNode` utilisé dans les props via import inline
+
+### `src/components/FormField.tsx`
+```typescript
+import type { FC, ReactNode } from "react";
+```
+**Status** : ✅ OK
 
 ---
 
-## ⚡ Recommandations Performance
+## 🔍 Checklist Globale
 
-### 1. Lazy Loading
-```typescript
-// Charger les charts à la demande
-const Analysis = lazy(() => import("./Analysis"));
-const PortfolioChart = lazy(() =>
-  import("../components/charts/PortfolioChart")
-);
-```
-
-### 2. Memoization
-```typescript
-// Memoize composants coûteux
-const InvestmentCard = memo(({ investment } : Props) => {
-  return <div>...</div>;
-});
-```
-
-### 3. Virtual Scrolling
-```typescript
-// Pour listes longues (Transactions)
-import { FixedSizeList } from "react-window";
-```
-
----
-
-## ✅ Conclusion
-
-**Tous les imports sont corrects !** ✅
-
-- Pas d'imports inutilisés
-- Pas de dépendances manquantes
-- Structure bien organisée
-
-### Actions Recommandées
-1. Ajouter lazy loading pour Analysis page
-2. Implémenter React.memo() pour cards
-3. Optimiser re-renders avec useCallback
+| Fichier | Status | Remarque |
+|---|---|---|
+| main.tsx | ✅ | — |
+| App.tsx | ✅ | — |
+| LoginScreen.tsx | ✅ | DEV_CREDENTIALS = force hot reload |
+| RegisterScreen.tsx | ✅ | — |
+| WelcomeScreen.tsx | ✅ | — |
+| RootNavigator.tsx | ✅ | — |
+| AuthNavigator.tsx | ✅ | — |
+| AppNavigator.tsx | ⚠️ | Legacy, non utilisé |
+| Dashboard.tsx | ✅ | — |
+| Portfolio.tsx | ✅ | — |
+| Transactions.tsx | ✅ | — |
+| Dividends.tsx | ✅ | FC implicite |
+| Goals.tsx | ✅ | FC implicite |
+| Analysis.tsx | ✅ | — |
+| Simulation.tsx | ✅ | data prop inutilisée |
+| Reports.tsx | ✅ | — |
+| Notifications.tsx | ✅ | FC implicite |
+| Profile.tsx | ✅ | FC implicite |
+| Settings.tsx | ✅ | — |
+| AiChat.tsx | ✅ | — |
+| KpiCard.tsx | ⚠️ | ReactNode import inutilisé |
+| Modal.tsx | ⚠️ | ReactNode import inutilisé |
+| EmptyState.tsx | ⚠️ | ReactNode import inutilisé |
+| FormField.tsx | ✅ | — |
 
 ---
 
-**Version** : 1.0  
-**Dernière mise à jour** : 28 février 2026
+## ⚡ Recommandations
+
+1. **Nettoyer les `ReactNode` inutilisés** dans KpiCard, Modal, EmptyState
+2. **`Simulation.tsx`** : retirer le prop `data` si jamais utilisé ou l'utiliser pour pré-remplir les champs
+3. **`AppNavigator.tsx`** : peut être supprimé si `RootNavigator` est redirigé directement vers `App.tsx`
+4. **Stubs legacy** (`Accueil.tsx`, `Portefeuille.tsx`, `Dividendes.tsx`) : peuvent être supprimés si `AppNavigator` est supprimé
+
+---
+
+**Version** : 2.0
+**Dernière mise à jour** : 1 mars 2026

@@ -12,6 +12,12 @@ export interface DevUser {
 
 export const TEST_USERS: DevUser[] = [
   {
+    id: "dev",
+    email: "dev@test.com",
+    password: "Dev123!",
+    name: "Dev",
+  },
+  {
     id: "1",
     email: "alice@example.com",
     password: "password123",
@@ -23,5 +29,4 @@ export const TEST_USERS: DevUser[] = [
     password: "password123",
     name: "Bob",
   },
-  // …ajoute autant d’entrées que nécessaire
 ];

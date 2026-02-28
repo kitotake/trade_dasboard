@@ -1,360 +1,169 @@
-# 🗺️ NAVIGATION – FinanceFlow
+# 🗺️ NAVIGATION – trade-dashboard
 
 ## Architecture Générale
 
 ```
-┌────────────────────────────────────┐
-│      AppNavigator (Entry)          │
-│    (Gestion des routes via state)  │
-└────────────┬───────────────────────┘
-             │
-     ┌───────┴────────┐
-     │                │
-Non-auth         Auth ✅
-     │                │
-     ▼                ▼
-┌──────────┐  ┌──────────────┐
-│ Auth UI  │  │ AppNavigator │
-│- Login   │  │ - Pages      │
-│- Register│  │ - Components │
-└──────────┘  └──────────────┘
+main.tsx
+  └── RootNavigator
+        ├── mode: "auth"  → AuthNavigator
+        │     ├── WelcomeScreen
+        │     ├── LoginScreen
+        │     └── RegisterScreen
+        │
+        └── mode: "app"   → App.tsx  ← navigation principale
+              ├── Sidebar (PAGES)
+              └── renderPage() switch
 ```
 
 ---
 
-## 📱 Flux Utilisateur Complet
+## 🔄 Flux d'authentification
 
-### 1️⃣ Non-Authentifié
 ```
-Start
+Démarrage
   ↓
-LoginScreen / RegisterScreen
+RootNavigator (mode: "auth", entry: "welcome")
   ↓
-Validation JWT
+WelcomeScreen → [Commencer]
   ↓
-Token sauvegardé → localStorage
+LoginScreen → vérification dans TEST_USERS
   ↓
-Authentifié ✅
+onAuthSuccess() → setState({ mode: "app", entry: "accueil" })
+  ↓
+App.tsx chargé
 ```
 
-### 2️⃣ Authentifié
-```
-Accueil (Défaut)
-  ↓
-┌─→ Dashboard (KPI, solde)
-├─→ Portfolio (Investissements)
-├─→ Transactions (Historique)
-├─→ Dividendes (Revenus)
-├─→ Goals (Objectifs)
-├─→ Analysis (Graphiques)
-├─→ Simulation (Scénarios)
-├─→ Reports (Rapports)
-├─→ Profile (Profil)
-└─→ Settings (Paramètres)
-```
+> `RegisterScreen` appelle aussi `onAuthSuccess()` directement (pas de vraie création de compte).
 
 ---
 
-## 🧭 Navigation AppNavigator
+## 🧭 Navigation principale (App.tsx)
 
-### Structure
+La navigation dans l'application est gérée par un simple `useState` dans `App.tsx` — **pas de React Router, pas de Context**.
+
 ```typescript
-// filepath: src/navigation/types.ts
-export type AppRoute =
-  | "accueil"
-  | "dashboard"
-  | "portfolio"
-  | "transactions"
-  | "dividends"
-  | "goals"
-  | "analysis"
-  | "simulation"
-  | "reports"
-  | "profile"
-  | "settings";
-```
+const [page, setPage] = useState<string>("dashboard");
 
-### Composant Principal
-```typescript
-// filepath: src/navigation/AppNavigator.tsx
-type Props = {
-  initial?: AppRoute;
-  onRouteChange?: (r: AppRoute) => void;
-};
-
-export default function AppNavigator({
-  initial = "accueil",
-  onRouteChange
-}: Props) {
-  const [route, setRoute] = useState<AppRoute>(initial);
-  const [data, setData] = useState<any>({});
-
-  const navigate = (r: AppRoute) => {
-    setRoute(r);
-    onRouteChange?.(r);
-  };
-
-  const renderPage = () => {
-    switch (route) {
-      case "accueil":
-        return <Accueil />;
-      case "dashboard":
-        return <Dashboard data={data} navigate={navigate} />;
-      case "portfolio":
-        return <Portfolio data={data} setData={setData} />;
-      // ... autres cas
-      default:
-        return <Accueil />;
-    }
-  };
-
-  return (
-    <div>
-      {renderPage()}
-      <BottomNavigation navigate={navigate} />
-    </div>
-  );
-}
-```
-
----
-
-## 📊 Matrice de Navigation
-
-| Source | Destination | Méthode | Props |
-|--------|-------------|---------|-------|
-| Accueil | Dashboard | navigate("dashboard") | - |
-| Accueil | Portfolio | navigate("portfolio") | - |
-| Dashboard | Transactions | navigate("transactions") | - |
-| Dashboard | Analysis | navigate("analysis") | - |
-| Portfolio | Details | navigate() + params | investment |
-| Transactions | Details | navigate() + params | transaction |
-| Profile | Settings | navigate("settings") | - |
-| Settings | Profile | navigate("profile") | - |
-
----
-
-## 🔄 Flux de Navigation Détaillé
-
-### Home → Dashboard
-```
-Home Screen
-  ↓ [Click "Dashboard"]
-  ↓
-AppNavigator.navigate("dashboard")
-  ↓
-setRoute("dashboard")
-  ↓
-renderPage() swtich → Dashboard
-  ↓
-Dashboard Component Render
-```
-
-### Dashboard → Transactions
-```
-Dashboard Component
-  ↓ [Click "View Transactions"]
-  ↓ navigate("transactions")
-  ↓
-AppNavigator setRoute("transactions")
-  ↓
-Transactions Screen Appear
-```
-
----
-
-## 🎯 Patterns Navigation
-
-### Pattern 1 : Navigation Simple
-```typescript
-const navigate = (route: AppRoute) => {
-  setRoute(route);
-  onRouteChange?.(route);
-};
-
-// Utilisation
-<button onClick={() => navigate("dashboard")}>
-  Dashboard
-</button>
-```
-
-### Pattern 2 : Navigation avec Données
-```typescript
-const navigateWithData = (
-  route: AppRoute,
-  data: any
-) => {
-  setRoute(route);
-  setData(data);
-};
-
-// Utilisation
-<button onClick={() =>
-  navigateWithData("transactions", { month: 1 })
-}>
-  Janvier
-</button>
-```
-
-### Pattern 3 : Retour à l'Accueil
-```typescript
-const goHome = () => {
-  setRoute("accueil");
-  setData({});
-  onRouteChange?.("accueil");
+const renderPage = () => {
+  switch (page) {
+    case "dashboard":     return <Dashboard data={data} setPage={setPage} />;
+    case "portfolio":     return <Portfolio data={data} setData={handleSetData} />;
+    case "transactions":  return <Transactions data={data} setData={handleSetData} />;
+    case "dividends":     return <Dividends data={data} setData={handleSetData} />;
+    case "goals":         return <Goals data={data} setData={handleSetData} />;
+    case "analysis":      return <Analysis data={data} />;
+    case "simulation":    return <Simulation data={data} />;
+    case "reports":       return <Reports data={data} />;
+    case "notifications": return <Notifications data={data} setData={handleSetData} />;
+    case "profile":       return <ProfilePage data={data} setData={handleSetData} />;
+    case "settings":      return <Settings data={data} setData={handleSetData} />;
+  }
 };
 ```
 
 ---
 
-## 🔐 Navigation Authentifiée
+## 📍 Sidebar
 
-### Routes Protégées
+La sidebar liste les pages depuis `PAGES` dans `src/utils/theme.ts` :
+
 ```typescript
-// Routes accessibles uniquement si authentifié
-const PROTECTED_ROUTES = [
-  "dashboard",
-  "portfolio",
-  "transactions",
-  "goals",
-  "analysis",
-  "simulation",
-  "reports",
-  "profile",
-  "settings"
+export const PAGES = [
+  { id: "dashboard",     label: "Dashboard",    icon: "⚡" },
+  { id: "portfolio",     label: "Portefeuille", icon: "📊" },
+  { id: "transactions",  label: "Transactions", icon: "↕️" },
+  { id: "dividends",     label: "Dividendes",   icon: "💰" },
+  { id: "goals",         label: "Objectifs",    icon: "🎯" },
+  { id: "analysis",      label: "Analyse",      icon: "📈" },
+  { id: "simulation",    label: "Simulation",   icon: "🔬" },
+  { id: "reports",       label: "Rapports",     icon: "📋" },
+  { id: "notifications", label: "Notifications",icon: "🔔" },
+  { id: "profile",       label: "Profil",       icon: "👤" },
+  { id: "settings",      label: "Paramètres",   icon: "⚙️" },
 ];
-
-// Vérification avant navigation
-const navigate = (r: AppRoute) => {
-  if (PROTECTED_ROUTES.includes(r) && !isAuthenticated) {
-    redirect("/login");
-    return;
-  }
-  setRoute(r);
-};
 ```
+
+La sidebar est **collapsible** (`sidebarOpen` state dans App.tsx) : largeur 230px ↔ 62px.
 
 ---
 
-## 🎨 Composants de Navigation
+## 🔀 Navigation depuis les composants
 
-### BottomNavigation
+Les composants reçoivent `setPage` en prop depuis App.tsx.
+
+### Pattern standard
 ```typescript
-interface BottomNavigationProps {
-  navigate: (route: AppRoute) => void;
-  currentRoute?: AppRoute;
-}
+// Dans App.tsx
+<Dashboard data={data} setPage={setPage} />
 
-export function BottomNavigation({
-  navigate,
-  currentRoute
-}: BottomNavigationProps) {
-  return (
-    <div style={{
-      position: "fixed",
-      right: 12,
-      bottom: 12,
-      display: "flex",
-      gap: 8
-    }}>
-      <button
-        onClick={() => navigate("dashboard")}
-        style={{
-          backgroundColor:
-            currentRoute === "dashboard" ? "#2E7D32" : "#ccc"
-        }}
-      >
-        Dashboard
-      </button>
-      <button
-        onClick={() => navigate("portfolio")}
-        style={{
-          backgroundColor:
-            currentRoute === "portfolio" ? "#2E7D32" : "#ccc"
-        }}
-      >
-        Portfolio
-      </button>
-      <button
-        onClick={() => navigate("profile")}
-      >
-        Profile
-      </button>
-      <button
-        onClick={() => navigate("settings")}
-      >
-        Settings
-      </button>
-    </div>
-  );
+// Dans Dashboard.tsx
+<button onClick={() => setPage("portfolio")}>Voir tout →</button>
+```
+
+### Navigation vers le profil (header)
+```typescript
+// App.tsx — avatar cliquable
+<div onClick={() => setPage("profile")}>...</div>
+```
+
+### Navigation interne à une page (Portfolio)
+Portfolio gère sa propre navigation interne (liste ↔ détail) via un `useState` local :
+```typescript
+const [detail, setDetail] = useState<string | null>(null);
+
+// Vue détail
+if (detail) {
+  return <div>...<button onClick={() => setDetail(null)}>← Retour</button></div>;
 }
 ```
 
 ---
 
-## 🚨 Gestion des Erreurs de Navigation
+## 🤖 Assistant IA (AiChat)
 
-### Guard Navigation
+Le chat IA est un **overlay flottant**, pas une page. Il est géré par :
 ```typescript
-const navigate = (r: AppRoute) => {
-  try {
-    // Validation route
-    if (!VALID_ROUTES.includes(r)) {
-      console.warn(`Route invalide: ${r}`);
-      setRoute("accueil");
-      return;
-    }
+const [chatOpen, setChatOpen] = useState(false);
 
-    setRoute(r);
-    onRouteChange?.(r);
-  } catch (error) {
-    console.error("Navigation error:", error);
-    setRoute("accueil");
-  }
-};
+// Bouton header
+<button onClick={() => setChatOpen(c => !c)}>🤖 Assistant IA</button>
+
+// Rendu conditionnel en dehors du main
+{chatOpen && <AiChat data={data} onClose={() => setChatOpen(false)} />}
 ```
 
 ---
 
-## 📍 Niveaux de Profondeur Navigation
+## 📊 Tableau des routes
 
-```
-Niveau 0
-└── AppNavigator
-
-Niveau 1 (Pages)
-├── Accueil
-├── Dashboard
-├── Portfolio
-├── Transactions
-├── Goals
-└── ...
-
-Niveau 2 (Détails)
-├── Transaction Details
-├── Investment Details
-└── ...
-```
+| id | Composant | Props reçues | Modifie data ? |
+|---|---|---|---|
+| dashboard | Dashboard.tsx | data, setPage | ❌ |
+| portfolio | Portfolio.tsx | data, setData | ✅ |
+| transactions | Transactions.tsx | data, setData | ✅ |
+| dividends | Dividends.tsx | data, setData | ✅ |
+| goals | Goals.tsx | data, setData | ✅ |
+| analysis | Analysis.tsx | data | ❌ |
+| simulation | Simulation.tsx | data | ❌ |
+| reports | Reports.tsx | data | ❌ |
+| notifications | Notifications.tsx | data, setData | ✅ |
+| profile | Profile.tsx | data, setData | ✅ |
+| settings | Settings.tsx | data, setData | ✅ |
 
 ---
 
-## 🎯 Résumé Routes
+## ⚠️ Fichiers legacy (ne pas supprimer)
 
-| Route | Composant | Auth | Icône |
-|-------|-----------|------|-------|
-| accueil | Accueil | ✅ | 🏠 |
-| dashboard | Dashboard | ✅ | 📊 |
-| portfolio | Portfolio | ✅ | 💼 |
-| transactions | Transactions | ✅ | 💰 |
-| dividends | Dividendes | ✅ | 📈 |
-| goals | Goals | ✅ | 🎯 |
-| analysis | Analysis | ✅ | 📉 |
-| simulation | Simulation | ✅ | 🔮 |
-| reports | Reports | ✅ | 📄 |
-| profile | Profile | ✅ | 👤 |
-| settings | Settings | ✅ | ⚙️ |
+Ces fichiers existent pour des raisons de compatibilité avec `AppNavigator.tsx` :
+
+| Fichier | Rôle |
+|---|---|
+| `src/pages/Accueil.tsx` | Stub vide, requis par AppNavigator |
+| `src/pages/Portefeuille.tsx` | Redirige vers Portfolio.tsx |
+| `src/pages/Dividendes.tsx` | Redirige vers Dividends.tsx |
+| `src/navigation/AppNavigator.tsx` | Non utilisé par App.tsx mais conservé |
 
 ---
 
-**Version** : 1.0  
-**Dernière mise à jour** : 28 février 2026
+**Version** : 2.0
+**Dernière mise à jour** : 1 mars 2026
