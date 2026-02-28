@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SCSS, GLOBAL_CSS, PAGES } from "./utils/theme";
 import { fmtE } from "./utils/helpers";
 import { initialData, type AppData, saveToStorage, clearStorage, withAutoSnapshot } from "./data/accountData";

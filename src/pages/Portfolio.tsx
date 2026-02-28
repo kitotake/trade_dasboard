@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import KpiCard from "../components/KpiCard";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
@@ -12,7 +12,7 @@ interface PortfolioProps {
   setData: React.Dispatch<React.SetStateAction<AppData>>;
 }
 
-const Portfolio: React.FC<PortfolioProps> = ({ data, setData }) => {
+const Portfolio: FC<PortfolioProps> = ({ data, setData }) => {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [detail, setDetail] = useState<string | null>(null);

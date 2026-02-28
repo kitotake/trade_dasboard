@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import FormField from "../components/FormField";
@@ -11,7 +11,7 @@ interface ProfileProps {
   setData: React.Dispatch<React.SetStateAction<AppData>>;
 }
 
-const ProfilePage: React.FC<ProfileProps> = ({ data, setData }) => {
+const ProfilePage: FC<ProfileProps> = ({ data, setData }) => {
   const [editing, setEditing] = useState(false);
   const p = data.profile || {};
   const [form, setForm] = useState<Profile>(p);

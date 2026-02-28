@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import FormField from "../components/FormField";
@@ -8,7 +8,7 @@ import type { Transaction, AppData } from "../data/accountData";
 
 interface TransactionsProps {
   data: AppData;
-  setData: React.Dispatch<React.SetStateAction<AppData>>;
+  setData: Dispatch<SetStateAction<AppData>>;
 }
 
 const Transactions: React.FC<TransactionsProps> = ({ data, setData }) => {

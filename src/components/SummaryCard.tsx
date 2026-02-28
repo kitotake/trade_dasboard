@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import styles from "../styles/SummaryCard.module.scss";
 
 interface SummaryCardProps {
@@ -6,7 +6,7 @@ interface SummaryCardProps {
   value: number;
 }
 
-const SummaryCard: React.FC<SummaryCardProps> = ({ title, value }) => {
+const SummaryCard: FC<SummaryCardProps> = ({ title, value }) => {
   return (
     <div className={styles.card}>
       <h3>{title}</h3>

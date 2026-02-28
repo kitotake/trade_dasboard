@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC, ReactNode } from "react";
 
 interface ModalProps {
   title: string;
@@ -7,7 +7,7 @@ interface ModalProps {
   width?: number;
 }
 
-const Modal: React.FC<ModalProps> = ({ title, onClose, children, width = 520 }) => {
+const Modal: FC<ModalProps> = ({ title, onClose, children, width = 520 }) => {
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:1000,
       display:"flex", alignItems:"center", justifyContent:"center", padding:20,

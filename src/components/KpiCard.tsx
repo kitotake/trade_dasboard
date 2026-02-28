@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC, ReactNode } from "react";
 import { SCSS } from "../utils/theme";
 
 interface KpiCardProps {
@@ -11,7 +11,7 @@ interface KpiCardProps {
   empty?: boolean;
 }
 
-const KpiCard: React.FC<KpiCardProps> = ({ label, value, sub, color = SCSS.accentCyan, icon, trend, empty }) => {
+const KpiCard: FC<KpiCardProps> = ({ label, value, sub, color = SCSS.accentCyan, icon, trend, empty }) => {
   return (
     <div className="kpi-card fade-up" style={{ "--hover-glow": color } as any}>
       <div style={{ position:"absolute", top:0, right:0, width:100, height:100,

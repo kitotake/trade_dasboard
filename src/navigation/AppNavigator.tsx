@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import type { AppRoute } from "./utils/types";
+import { useState } from "react";
+import type { AppRoute } from "../utils/types";
 import { initialData, type AppData } from "../data/accountData";
 import Accueil from "../pages/Accueil";
 import Dashboard from "../pages/Dashboard";

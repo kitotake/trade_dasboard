@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { SCSS } from "../utils/theme";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
@@ -11,7 +11,7 @@ interface NotificationsProps {
   setData: React.Dispatch<React.SetStateAction<AppData>>;
 }
 
-const Notifications: React.FC<NotificationsProps> = ({ data, setData }) => {
+const Notifications: FC<NotificationsProps> = ({ data, setData }) => {
   const [modal, setModal] = useState(false);
   const EMPTY: Notification = { type:"info", msg:"", time:"", id:"" };
   const [form, setForm] = useState<Notification>(EMPTY);

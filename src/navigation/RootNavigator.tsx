@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { RootState } from "../utils/types";
 import AuthNavigator from "./AuthNavigator";
 import AppNavigator from "./AppNavigator";

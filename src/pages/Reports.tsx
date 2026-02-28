@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import EmptyState from "../components/EmptyState";
 import { SCSS } from "../utils/theme";
 import { fmtE, pct } from "../utils/helpers";
@@ -8,7 +8,7 @@ interface ReportsProps {
   data: AppData;
 }
 
-const Reports: React.FC<ReportsProps> = ({ data }) => {
+const Reports: FC<ReportsProps> = ({ data }) => {
   const investments = data.investments || [];
   const dividends = data.dividends || [];
   const transactions = data.transactions || [];

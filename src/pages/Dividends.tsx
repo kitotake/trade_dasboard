@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import FormField from "../components/FormField";
@@ -12,7 +12,7 @@ interface DividendsProps {
   setData: React.Dispatch<React.SetStateAction<AppData>>;
 }
 
-const Dividends: React.FC<DividendsProps> = ({ data, setData }) => {
+const Dividends: FC<DividendsProps> = ({ data, setData }) => {
   const [modal, setModal] = useState(false);
   const EMPTY: Dividend = { date:"", company:"", ticker:"", amount:"", type:"Dividende", note:"", id:"" };
   const [form, setForm] = useState<Dividend>(EMPTY);

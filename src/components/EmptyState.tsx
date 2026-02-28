@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC, ReactNode } from "react";
 
 interface EmptyStateProps {
   icon?: React.ReactNode;
@@ -8,7 +8,7 @@ interface EmptyStateProps {
   onCta?: () => void;
 }
 
-const EmptyState: React.FC<EmptyStateProps> = ({ icon = "📭", msg = "Aucune donnée", sub = "Ajoutez vos informations pour commencer", cta, onCta }) => {
+const EmptyState: FC<EmptyStateProps> = ({ icon = "📭", msg = "Aucune donnée", sub = "Ajoutez vos informations pour commencer", cta, onCta }) => {
   return (
     <div className="empty-state">
       <div className="icon">{icon}</div>

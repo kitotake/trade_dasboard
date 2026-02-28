@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styles from "./styles/Auth.module.scss";
+import { useState, type FormEvent } from "react";
+import styles from "../styles/Auth.module.scss";
 
 type Props = {
   onLogin?: () => void;
@@ -10,7 +10,7 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     // TODO: replace with real auth logic
     if (onLogin) onLogin();

@@ -1,11 +1,11 @@
-import React from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import { SCSS } from "../utils/theme";
 import { clearStorage } from "../data/accountData";
 import type { AppData } from "../data/accountData";
 
 interface SettingsProps {
   data: AppData;
-  setData: React.Dispatch<React.SetStateAction<AppData>>;
+  setData: Dispatch<SetStateAction<AppData>>;
 }
 
 const Settings: React.FC<SettingsProps> = ({ data, setData }) => {

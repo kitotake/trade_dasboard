@@ -7,9 +7,11 @@
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 1.25rem;
+  /* use same dark-card style as global.scss */
+  background: rgba(255,255,255,0.035);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
   width: 100%;
   max-width: 420px;
   box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
@@ -29,12 +31,7 @@ label {
   font-size: 0.9rem;
 }
 
-input {
-  margin-top: 0.35rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid #e6e9ef;
-  border-radius: 6px;
-}
+/* inputs inherit global dark form styles; no override needed */
 
 .actions {
   display: flex;
@@ -44,8 +41,9 @@ input {
 }
 
 .primary {
-  background: #2563eb;
-  color: white;
+  /* match global .btn-primary but scaled down */
+  background: linear-gradient(135deg, #6EE7F7, #B197FC);
+  color: #08090D;
   border: none;
   padding: 0.5rem 0.9rem;
   border-radius: 6px;
@@ -55,7 +53,7 @@ input {
 .link {
   background: transparent;
   border: none;
-  color: #2563eb;
+  color: #6EE7F7;
   cursor: pointer;
   padding: 0.5rem 0.9rem;
 }

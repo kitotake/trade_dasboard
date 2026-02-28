@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
 import KpiCard from "../components/KpiCard";
 import EmptyState from "../components/EmptyState";
@@ -11,7 +11,7 @@ interface DashboardProps {
   setPage: (page: string) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ data, setPage }) => {
+const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
   const { investments = [], dividends = [], accounts = {}, portfolioHistory = [] } = data;
 
   const totalInvested = investments.reduce((s, i) => s + (Number(i.invested) || 0), 0);

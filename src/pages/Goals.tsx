@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import FormField from "../components/FormField";
@@ -11,7 +11,7 @@ interface GoalsProps {
   setData: React.Dispatch<React.SetStateAction<AppData>>;
 }
 
-const Goals: React.FC<GoalsProps> = ({ data, setData }) => {
+const Goals: FC<GoalsProps> = ({ data, setData }) => {
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const EMPTY: Goal = { id:"", name:"", target:"", current:"", deadline:"", color:SCSS.accentCyan, note:"" };

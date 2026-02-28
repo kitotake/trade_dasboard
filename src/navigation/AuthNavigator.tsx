@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import type { AuthRoute } from "../utils/types";
 import WelcomeScreen from "../auth/WelcomeScreen";
 import LoginScreen from "../auth/LoginScreen";

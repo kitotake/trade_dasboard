@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Cell } from "recharts";
 import EmptyState from "../components/EmptyState";
 import { SCSS } from "../utils/theme";
@@ -9,7 +9,7 @@ interface AnalysisProps {
   data: AppData;
 }
 
-const Analysis: React.FC<AnalysisProps> = ({ data }) => {
+const Analysis: FC<AnalysisProps> = ({ data }) => {
   const investments = data.investments || [];
   const perfData = investments.map(i => ({
     name: i.ticker || i.name?.slice(0,8),

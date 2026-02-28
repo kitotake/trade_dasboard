@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import EmptyState from "../components/EmptyState";
 import KpiCard from "../components/KpiCard";
 import FormField from "../components/FormField";
@@ -12,7 +12,7 @@ interface SimulationProps {
   data?: AppData;
 }
 
-const Simulation: React.FC<SimulationProps> = () => {
+const Simulation: FC<SimulationProps> = () => {
   const [sim, setSim] = useState({ initial:"", monthly:"", rate:"7", years:"10" });
   const [result, setResult] = useState<any>(null);
 

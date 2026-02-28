@@ -1,4 +1,4 @@
-import React from "react";
+import type { FC } from "react";
 import type { Investment } from "../data/accountData";
 import { fmtE, pct } from "../utils/helpers";
 import { SCSS } from "../utils/theme";
@@ -8,7 +8,7 @@ interface Props {
   onBack?: () => void;
 }
 
-const DetailsInvestissement: React.FC<Props> = ({ investment, onBack }) => {
+const DetailsInvestissement: FC<Props> = ({ investment, onBack }) => {
   const p = parseFloat(pct(investment.invested, investment.current));
   const gain = (Number(investment.current) || 0) - (Number(investment.invested) || 0);
 

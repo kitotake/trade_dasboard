@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import styles from "./styles/Auth.module.scss";
+import { useState, type FormEvent } from "react";
+import styles from "../styles/Auth.module.scss";
 
 type Props = {
   onRegister?: () => void;
@@ -11,7 +11,7 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (password !== confirm) {
       alert("Les mots de passe ne correspondent pas");
