@@ -1,31 +1,37 @@
 import { useState, type FormEvent } from "react";
+import { DEV_CREDENTIALS, TEST_USERS } from "../utils/devCredentials";
 import styles from "../styles/Auth.module.scss";
 
 type Props = {
-  onRegister?: () => void;
-  onSwitchToLogin?: () => void;
+  onLogin?: () => void;
+  onSwitchToRegister?: () => void;
 };
 
-export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
+DEV_CREDENTIALS; // Assure que les données de test sont chargées (utile pour le hot reload)
+
+export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    if (password !== confirm) {
-      setError("Les mots de passe ne correspondent pas.");
+    if (!email || !password) {
+      setError("Veuillez remplir tous les champs.");
       return;
     }
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères.");
-      return;
+
+    const user = TEST_USERS.find((u) => u.email === email && u.password === password); 
+    // Simule une vérification des identifiants
+
+    if (user) {
+      setError("");
+      if (onLogin) onLogin();
+      else window.location.href = "/";
+    } else {
+      setError("Email ou mot de passe incorrect");
     }
-    // TODO: replace with real register logic
-    if (onRegister) onRegister();
-    else window.location.href = "/";
   };
 
   return (
@@ -36,8 +42,8 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
           <span className={styles.brandName}>trade-dashboard</span>
         </div>
 
-        <h1 className={styles.title}>Créer un compte</h1>
-        <p className={styles.subtitle}>Commencez à piloter vos investissements</p>
+        <h1 className={styles.title}>Connexion</h1>
+        <p className={styles.subtitle}>Accédez à votre tableau de bord</p>
 
         {error && <div className={styles.error}>{error}</div>}
 
@@ -59,38 +65,27 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
               <input
                 className={styles.input}
                 type="password"
-                placeholder="Minimum 6 caractères"
+                placeholder="Votre mot de passe"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div className={styles.fieldGroup}>
-              <label className={styles.label}>Confirmer le mot de passe</label>
-              <input
-                className={styles.input}
-                type="password"
-                placeholder="••••••••"
-                value={confirm}
-                onChange={(e) => setConfirm(e.target.value)}
                 required
               />
             </div>
           </div>
 
           <button type="submit" className={styles.submit}>
-            Créer mon compte →
+            Se connecter →
           </button>
         </form>
 
         <div className={styles.switchRow}>
-          Déjà un compte ?
+          Pas encore de compte ?
           <button
             type="button"
             className={styles.switchLink}
-            onClick={() => onSwitchToLogin?.()}
+            onClick={() => onSwitchToRegister?.()}
           >
-            Se connecter
+            Créer un compte
           </button>
         </div>
       </div>

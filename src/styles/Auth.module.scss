@@ -1,4 +1,4 @@
-/* ── Auth Module — Dark Theme matching  ── */
+/* ── Auth Module — Dark Theme ── */
 
 .page {
   min-height: 100vh;
@@ -11,6 +11,7 @@
   position: relative;
   overflow: hidden;
   font-family: 'DM Sans', system-ui, sans-serif;
+  color: #fff;
 }
 
 .page::before {
@@ -35,6 +36,7 @@
   pointer-events: none;
 }
 
+/* ── Card ── */
 .card {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -48,9 +50,9 @@
     0 8px 32px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
-  gap: 0;
   position: relative;
   animation: authFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 1;
 }
 
 @keyframes authFadeUp {
@@ -67,8 +69,10 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, #6EE7F7 40%, #B197FC 60%, transparent);
   border-radius: 1px;
+  pointer-events: none;
 }
 
+/* ── Brand ── */
 .brand {
   display: flex;
   align-items: center;
@@ -96,6 +100,7 @@
   letter-spacing: -0.5px;
 }
 
+/* ── Titles ── */
 .title {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 26px;
@@ -113,6 +118,7 @@
   line-height: 1.5;
 }
 
+/* ── Fields ── */
 .fields {
   display: flex;
   flex-direction: column;
@@ -136,27 +142,41 @@
 
 .input {
   font-family: 'DM Sans', system-ui, sans-serif;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  color: #fff;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  color: #fff !important;
   border-radius: 10px;
   padding: 12px 16px;
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
   width: 100%;
+  -webkit-text-fill-color: #fff;
+}
+
+/* Override browser autofill white background */
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover,
+.input:-webkit-autofill:focus,
+.input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #0f1120 inset !important;
+  -webkit-text-fill-color: #fff !important;
+  caret-color: #fff;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .input:focus {
-  border-color: #6EE7F7;
-  box-shadow: 0 0 0 3px rgba(110, 231, 247, 0.09);
-  background: rgba(110, 231, 247, 0.03);
+  border-color: #6EE7F7 !important;
+  box-shadow: 0 0 0 3px rgba(110, 231, 247, 0.09) !important;
+  background: rgba(110, 231, 247, 0.03) !important;
 }
 
 .input::placeholder {
   color: rgba(255, 255, 255, 0.2);
 }
 
+/* ── Submit button ── */
 .submit {
   width: 100%;
   padding: 13px 22px;
@@ -184,10 +204,16 @@
   opacity: 1;
 }
 
+/* ── Switch row ── */
 .switchRow {
   text-align: center;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .switchLink {
@@ -199,7 +225,6 @@
   font-weight: 600;
   cursor: pointer;
   padding: 0;
-  margin-left: 4px;
   transition: color 0.15s;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -207,6 +232,7 @@
 
 .switchLink:hover { color: #B197FC; }
 
+/* ── Error ── */
 .error {
   background: rgba(248, 113, 113, 0.1);
   border: 1px solid rgba(248, 113, 113, 0.25);
@@ -218,7 +244,9 @@
   text-align: center;
 }
 
-/* Welcome screen */
+/* ────────────────────────────────────────
+   Welcome screen
+──────────────────────────────────────── */
 .welcomeCard {
   background: rgba(255, 255, 255, 0.035);
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -235,6 +263,7 @@
   text-align: center;
   position: relative;
   animation: authFadeUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  z-index: 1;
 }
 
 .welcomeCard::before {
@@ -246,6 +275,7 @@
   height: 1px;
   background: linear-gradient(90deg, transparent, #6EE7F7 40%, #B197FC 60%, transparent);
   border-radius: 1px;
+  pointer-events: none;
 }
 
 .welcomeIcon {
