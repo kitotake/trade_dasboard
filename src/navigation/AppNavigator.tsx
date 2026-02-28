@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import type { AppRoute } from "./types";
+import type { AppRoute } from "./utils/types";
+import { initialData, type AppData } from "../data/accountData";
 import Accueil from "../pages/Accueil";
 import Dashboard from "../pages/Dashboard";
 import Portfolio from "../pages/Portfolio";
 import Transactions from "../pages/Transactions";
-import Dividendes from "../pages/Dividendes";
+import Dividends from "../pages/Dividends";
 import Goals from "../pages/Goals";
 import Analysis from "../pages/Analysis";
 import Simulation from "../pages/Simulation";
@@ -19,52 +20,52 @@ type Props = {
 
 export default function AppNavigator({ initial = "accueil", onRouteChange }: Props) {
   const [route, setRoute] = useState<AppRoute>(initial);
-  const [data, setData] = useState<any>({}); // Replace 'any' with your AppData type
+  const [data, setData] = useState<AppData>(initialData);
 
   const navigate = (r: AppRoute) => {
     setRoute(r);
     onRouteChange?.(r);
   };
 
-const renderPage = () => {
+  const renderPage = () => {
     switch (route) {
-        case "accueil":
-            return <Accueil />;
-        case "dashboard":
-            return <Dashboard data={data} setPage={navigate} />;
-        case "portfolio":
-            return <Portfolio data={data} setData={setData} />;
-        case "transactions":
-            return <Transactions data={data} setData={setData} />;
-        case "dividends":
-            return <Dividendes />;
-        case "goals":
-            return <Goals data={data} setData={setData} />;
-        case "analysis":
-            return <Analysis data={data} />;
-        case "simulation":
-            return <Simulation />;
-        case "reports":
-            return <Reports data={data} />;
-        case "profile":
-            return <Profile data={data} setData={setData} />;
-        case "settings":
-            return <Settings data={data} setData={setData} />;
-        default:
-            return <Accueil />;
+      case "accueil":
+        return <Accueil />;
+      case "dashboard":
+        return <Dashboard data={data} setPage={navigate} />;
+      case "portfolio":
+        return <Portfolio data={data} setData={setData} />;
+      case "transactions":
+        return <Transactions data={data} setData={setData} />;
+      case "dividends":
+        return <Dividends data={data} setData={setData} />;
+      case "goals":
+        return <Goals data={data} setData={setData} />;
+      case "analysis":
+        return <Analysis data={data} />;
+      case "simulation":
+        return <Simulation data={data} />;
+      case "reports":
+        return <Reports data={data} />;
+      case "profile":
+        return <Profile data={data} setData={setData} />;
+      case "settings":
+        return <Settings data={data} setData={setData} />;
+      default:
+        return <Accueil />;
     }
-};
+  };
 
-return (
+  return (
     <div style={{ minHeight: "100%" }}>
-        {renderPage()}
+      {renderPage()}
 
-        <div style={{ position: "fixed", right: 12, bottom: 12, display: "flex", gap: 8 }}>
-            <button onClick={() => navigate("dashboard")}>Dashboard</button>
-            <button onClick={() => navigate("portfolio")}>Portfolio</button>
-            <button onClick={() => navigate("profile")}>Profile</button>
-            <button onClick={() => navigate("settings")}>Settings</button>
-        </div>
+      <div style={{ position: "fixed", right: 12, bottom: 12, display: "flex", gap: 8 }}>
+        <button onClick={() => navigate("dashboard")}>Dashboard</button>
+        <button onClick={() => navigate("portfolio")}>Portfolio</button>
+        <button onClick={() => navigate("profile")}>Profile</button>
+        <button onClick={() => navigate("settings")}>Settings</button>
+      </div>
     </div>
-);
+  );
 }

@@ -1,33 +1,17 @@
+// Legacy stub — kept for AppNavigator compatibility.
+// The real implementation is in Portfolio.tsx.
 import React from "react";
-import { investments } from "../data/accountData";
-import styles from "../styles/Portefeuille.module.scss";
+import type { AppData } from "../data/accountData";
+import Portfolio from "./Portfolio";
 
-const Portefeuille: React.FC = () => {
-  return (
-    <div className={styles.container}>
-      <h1>Portefeuille</h1>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Actif</th>
-            <th>Investi</th>
-            <th>Valeur actuelle</th>
-            <th>Performance</th>
-          </tr>
-        </thead>
-        <tbody>
-          {investments.map((inv) => (
-            <tr key={inv.id}>
-              <td>{inv.name}</td>
-              <td>{inv.investedAmount} €</td>
-              <td>{inv.currentValue} €</td>
-              <td>{inv.performancePercent} %</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+interface Props {
+  data?: AppData;
+  setData?: React.Dispatch<React.SetStateAction<AppData>>;
+}
+
+const Portefeuille: React.FC<Props> = ({ data, setData }) => {
+  if (!data || !setData) return null;
+  return <Portfolio data={data} setData={setData} />;
 };
 
 export default Portefeuille;

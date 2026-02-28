@@ -111,7 +111,7 @@ function loadFromStorage(): AppData {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyData;
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(raw) as Partial<AppData>;
     // Merge with emptyData to ensure all keys exist
     return { ...emptyData, ...parsed };
   } catch {

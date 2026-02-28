@@ -1,20 +1,17 @@
+// Legacy stub — kept for AppNavigator compatibility.
+// The real implementation is in Dividends.tsx.
 import React from "react";
-import { dividends } from "../data/accountData";
-import styles from "../styles/Dividendes.module.scss";
+import type { AppData } from "../data/accountData";
+import Dividends from "./Dividends";
 
-const Dividendes: React.FC = () => {
-  return (
-    <div className={styles.container}>
-      <h1>Dividendes</h1>
-      <ul>
-        {dividends.map((d) => (
-          <li key={d.id}>
-            {d.asset} – {d.amount} € ({d.date})
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
+interface Props {
+  data?: AppData;
+  setData?: React.Dispatch<React.SetStateAction<AppData>>;
+}
+
+const Dividendes: React.FC<Props> = ({ data, setData }) => {
+  if (!data || !setData) return null;
+  return <Dividends data={data} setData={setData} />;
 };
 
 export default Dividendes;

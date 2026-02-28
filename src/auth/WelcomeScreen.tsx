@@ -1,4 +1,4 @@
-import React from "react";
+
 import styles from "./styles/Auth.module.scss";
 
 type Props = {
