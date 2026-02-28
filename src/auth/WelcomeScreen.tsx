@@ -1,4 +1,3 @@
-
 import styles from "../styles/Auth.module.scss";
 
 type Props = {
@@ -6,21 +5,37 @@ type Props = {
 };
 
 export default function WelcomeScreen({ onContinue }: Props) {
-  const handleContinue = () => {
-    if (onContinue) onContinue();
-    else window.location.href = "/";
-  };
-
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h1>Bienvenue</h1>
-        <p>Bienvenue dans votre tableau de bord Trade Dashboard.</p>
-        <div className={styles.actions}>
-          <button className={styles.primary} onClick={handleContinue}>
-            Commencer
-          </button>
+    <div className={styles.page}>
+      <div className={styles.welcomeCard}>
+        <div className={styles.welcomeIcon}>⚡</div>
+
+        <div className={styles.brand} style={{ justifyContent: "center" }}>
+          <span className={styles.brandName}>trade-dashboard</span>
         </div>
+
+        <h1 className={styles.welcomeTitle}>Votre portefeuille,<br />sous contrôle.</h1>
+        <p className={styles.welcomeSubtitle}>
+          Suivez, analysez et optimisez vos investissements depuis une interface élégante et intelligente.
+        </p>
+
+        <div className={styles.features}>
+          {[
+            ["📊", "Dashboard temps réel de vos actifs"],
+            ["🤖", "Assistant IA intégré pour conseils"],
+            ["🎯", "Suivi d'objectifs financiers personnels"],
+            ["🔒", "Données stockées localement, 100% privées"],
+          ].map(([icon, label]) => (
+            <div key={label} className={styles.featureItem}>
+              <span>{icon}</span>
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+
+        <button className={styles.submit} onClick={() => onContinue?.()}>
+          Commencer →
+        </button>
       </div>
     </div>
   );

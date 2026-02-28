@@ -94,7 +94,7 @@ export default function App() {
               background: `linear-gradient(135deg, ${SCSS.accentCyan}, ${SCSS.accentViolet})`,
               display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17
             }}>⚡</div>
-            {sidebarOpen && <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: -0.5, fontFamily: SCSS.fontDisplay }}>TradePulse</span>}
+            {sidebarOpen && <span style={{ fontWeight: 800, fontSize: 18, letterSpacing: -0.5, fontFamily: SCSS.fontDisplay }}>trade-dashboard</span>}
           </div>
 
           {sidebarOpen && (

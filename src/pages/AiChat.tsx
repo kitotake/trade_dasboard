@@ -11,7 +11,7 @@ interface AiChatProps {
 const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
   const [chatMsg, setChatMsg] = useState("");
   const [history, setHistory] = useState<{ role: string; text: string }[]>([
-    { role: "ai", text: "Bonjour ! Je suis votre assistant financier TradePulse. Posez-moi n'importe quelle question sur votre portefeuille." }
+    { role: "ai", text: "Bonjour ! Je suis votre assistant financier trade-dashboard. Posez-moi n'importe quelle question sur votre portefeuille." }
   ]);
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);

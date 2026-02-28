@@ -93,7 +93,7 @@ export interface AppData {
   settings: Settings;
 }
 
-const STORAGE_KEY = "tradepulse_data_v1";
+const STORAGE_KEY = "trade-dashboard_data_v1";
 
 const emptyData: AppData = {
   investments: [],

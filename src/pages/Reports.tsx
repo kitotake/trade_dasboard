@@ -24,7 +24,7 @@ const Reports: FC<ReportsProps> = ({ data }) => {
     ].join("\n");
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
-    a.download = "tradepulse_rapport.csv"; a.click();
+    a.download = "trade-dashboard_rapport.csv"; a.click();
   };
 
   return (

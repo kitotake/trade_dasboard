@@ -17,7 +17,7 @@ export default function RootNavigator({ initial }: Props) {
   };
 
   return (
-    <div style={{ minHeight: "100%" }}>
+    <div style={{ minHeight: "100vh", background: "#08090D" }}>
       {state.mode === "auth" && (
         <AuthNavigator initial={state.entry as any} onAuthSuccess={onAuthSuccess} />
       )}

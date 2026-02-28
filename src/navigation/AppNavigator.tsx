@@ -13,6 +13,7 @@ import Reports from "../pages/Reports";
 import Profile from "../pages/Profile";
 import Settings from "../pages/Settings";
 
+
 type Props = {
   initial?: AppRoute;
   onRouteChange?: (r: AppRoute) => void;
