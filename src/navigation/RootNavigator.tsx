@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { RootState } from "../utils/types";
 import AuthNavigator from "./AuthNavigator";
-import AppNavigator from "./AppNavigator";
+import App from "../App";
 
 type Props = {
   initial?: RootState;
@@ -13,7 +13,7 @@ export default function RootNavigator({ initial }: Props) {
   );
 
   const onAuthSuccess = () => {
-    setState({ mode: "app", entry: "accueil" });
+    setState({ mode: "app", entry: "dashboard" });
   };
 
   return (
@@ -22,7 +22,7 @@ export default function RootNavigator({ initial }: Props) {
         <AuthNavigator initial={state.entry as any} onAuthSuccess={onAuthSuccess} />
       )}
       {state.mode === "app" && (
-        <AppNavigator initial={state.entry as any} onRouteChange={() => {}} />
+        <App />
       )}
     </div>
   );
