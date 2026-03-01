@@ -8,15 +8,22 @@ interface AiChatProps {
   onClose: () => void;
 }
 
+// ⚠️  L'appel API Anthropic doit être effectué côté serveur (proxy backend)
+// pour ne pas exposer la clé API dans le bundle client.
+// Remplacez VITE_ANTHROPIC_API_KEY par votre clé dans .env (dev uniquement).
+const API_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY ?? "";
+
 const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
   const [chatMsg, setChatMsg] = useState("");
   const [history, setHistory] = useState<{ role: string; text: string }[]>([
-    { role: "ai", text: "Bonjour ! Je suis votre assistant financier trade-dashboard. Posez-moi n'importe quelle question sur votre portefeuille." }
+    { role: "ai", text: "Bonjour ! Je suis votre assistant financier trade-dashboard. Posez-moi n'importe quelle question sur votre portefeuille." },
   ]);
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [history, typing]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [history, typing]);
 
   const send = async () => {
     if (!chatMsg.trim()) return;
@@ -27,26 +34,37 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
 
     const investments = data.investments || [];
     const total = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
-    const ctx = `Données utilisateur: portefeuille=${total}€, ${investments.length} positions: ${investments.map(i => `${i.name}(${pct(i.invested, i.current)}%)`).join(", ")}, dividendes totaux=${(data.dividends || []).reduce((s, d) => s + (Number(d.amount) || 0), 0)}€`;
+    const ctx = `Données utilisateur: portefeuille=${total}€, ${investments.length} positions: ${investments
+      .map(i => `${i.name}(${pct(i.invested, i.current)}%)`)
+      .join(", ")}, dividendes totaux=${(data.dividends || []).reduce((s, d) => s + (Number(d.amount) || 0), 0)}€`;
 
     try {
       const res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
         body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
+          model: "claude-sonnet-4-6",
           max_tokens: 1000,
           system: `Tu es un assistant financier expert pour un investisseur particulier français. ${ctx}. Réponds en français, de façon concise, précise et bienveillante.`,
           messages: [
             ...history
               .filter((h, idx) => h.role !== "ai" || idx > 0)
               .map(h => ({ role: h.role === "ai" ? "assistant" : "user", content: h.text })),
-            { role: "user", content: msg }
-          ]
-        })
+            { role: "user", content: msg },
+          ],
+        }),
       });
       const d2 = await res.json();
-      setHistory(h => [...h, { role: "ai", text: d2.content?.[0]?.text || "Désolé, je n'ai pas pu répondre." }]);
+      const text = d2.content?.[0]?.text;
+      setHistory(h => [
+        ...h,
+        { role: "ai", text: text || (d2.error?.message ?? "Désolé, je n'ai pas pu répondre.") },
+      ]);
     } catch {
       setHistory(h => [...h, { role: "ai", text: "Erreur de connexion. Réessayez." }]);
     }
@@ -60,16 +78,17 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
       borderRadius: 20, display: "flex", flexDirection: "column", zIndex: 999,
       boxShadow: "0 24px 80px rgba(0,0,0,0.7)", overflow: "hidden",
     }}>
+      {/* Header */}
       <div style={{
         padding: "14px 18px", borderBottom: `1px solid ${SCSS.borderSub}`,
         display: "flex", justifyContent: "space-between", alignItems: "center",
-        background: "rgba(255,255,255,0.03)"
+        background: "rgba(255,255,255,0.03)",
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <div style={{
             width: 34, height: 34, borderRadius: "50%",
             background: `linear-gradient(135deg, ${SCSS.accentCyan}, ${SCSS.accentViolet})`,
-            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17
+            display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17,
           }}>🤖</div>
           <div>
             <div style={{ fontWeight: 700, fontSize: 14 }}>Assistant IA</div>
@@ -82,7 +101,16 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
         <button className="btn-ghost" style={{ padding: "5px 11px" }} onClick={onClose}>✕</button>
       </div>
 
+      {/* Messages */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {!API_KEY && (
+          <div style={{
+            background: "rgba(252,211,77,0.1)", border: `1px solid rgba(252,211,77,0.25)`,
+            borderRadius: 10, padding: "10px 14px", fontSize: 12, color: SCSS.accentAmber,
+          }}>
+            ⚠️ Clé API non configurée. Définissez <code>VITE_ANTHROPIC_API_KEY</code> dans votre fichier <code>.env</code>.
+          </div>
+        )}
         {history.map((m, i) => (
           <div key={i} style={{ display: "flex", justifyContent: m.role === "user" ? "flex-end" : "flex-start" }}>
             <div
@@ -96,12 +124,12 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
         {typing && (
           <div style={{
             display: "flex", gap: 5, padding: "10px 14px",
-            background: "rgba(255,255,255,0.07)", borderRadius: "14px 14px 14px 4px", width: 60
+            background: "rgba(255,255,255,0.07)", borderRadius: "14px 14px 14px 4px", width: 60,
           }}>
             {[0, 1, 2].map(i => (
               <div key={i} style={{
                 width: 6, height: 6, borderRadius: "50%", background: SCSS.accentCyan,
-                animation: `pulseRing 1s ${i * 0.2}s infinite`
+                animation: `pulseRing 1s ${i * 0.2}s infinite`,
               }} />
             ))}
           </div>
@@ -109,11 +137,12 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
         <div ref={endRef} />
       </div>
 
+      {/* Input */}
       <div style={{ padding: "12px 14px", borderTop: `1px solid ${SCSS.borderSub}`, display: "flex", gap: 8 }}>
         <input
           value={chatMsg}
           onChange={e => setChatMsg(e.target.value)}
-          onKeyDown={e => e.key === "Enter" && send()}
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
           placeholder="Posez une question…"
           style={{ flex: 1, borderRadius: 10 }}
         />

@@ -1,4 +1,5 @@
 import type { FC } from "react";
+
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
 import KpiCard from "../components/KpiCard";
 import EmptyState from "../components/EmptyState";
@@ -15,9 +16,9 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
   const { investments = [], dividends = [], accounts = {}, portfolioHistory = [] } = data;
 
   const totalInvested = investments.reduce((s, i) => s + (Number(i.invested) || 0), 0);
-  const totalCurrent = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
-  const totalDiv = dividends.reduce((s, d) => s + (Number(d.amount) || 0), 0);
-  const perf = parseFloat(pct(totalInvested, totalCurrent));
+  const totalCurrent  = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
+  const totalDiv      = dividends.reduce((s, d) => s + (Number(d.amount) || 0), 0);
+  const perf  = parseFloat(pct(totalInvested, totalCurrent));
   const empty = investments.length === 0;
 
   const sectorMap: Record<string, number> = {};
@@ -58,9 +59,11 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="label" stroke="rgba(255,255,255,0.18)" fontSize={11} />
-                <YAxis stroke="rgba(255,255,255,0.18)" fontSize={11} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-                <Tooltip contentStyle={{ background: "#1a1d2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontSize: 13 }}
-                  formatter={(v: any) => [fmtE(v)]} />
+                <YAxis stroke="rgba(255,255,255,0.18)" fontSize={11} tickFormatter={v => `${(v / 1000).toFixed(0)}k`} />
+                <Tooltip
+                  contentStyle={{ background: "#1a1d2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontSize: 13 }}
+                  formatter={(v: any) => [fmtE(v)]}
+                />
                 <Area type="monotone" dataKey="value" stroke={SCSS.accentCyan} strokeWidth={2} fill="url(#gPort)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -78,8 +81,10 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
                   <Pie data={sectorData} dataKey="value" cx="50%" cy="50%" innerRadius={38} outerRadius={65}>
                     {sectorData.map((s, i) => <Cell key={i} fill={s.color} />)}
                   </Pie>
-                  <Tooltip contentStyle={{ background: "#1a1d2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontSize: 13 }}
-                    formatter={(v: any) => [`${v}%`]} />
+                  <Tooltip
+                    contentStyle={{ background: "#1a1d2e", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 10, color: "#fff", fontSize: 13 }}
+                    formatter={(v: any) => [`${v}%`]}
+                  />
                 </PieChart>
               </ResponsiveContainer>
               <div style={{ display: "flex", flexWrap: "wrap", gap: "5px 10px", marginTop: 8 }}>
@@ -108,23 +113,23 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
               <th>Actif</th><th>Investi</th><th>Valeur actuelle</th><th>Perf. %</th><th>Gain €</th>
             </tr></thead>
             <tbody>
-              {investments.slice(0,5).map(inv => {
+              {investments.slice(0, 5).map(inv => {
                 const p = parseFloat(pct(inv.invested, inv.current));
                 const g = (Number(inv.current) || 0) - (Number(inv.invested) || 0);
                 return (
                   <tr key={inv.id}>
                     <td>
-                      <div style={{ fontWeight:600 }}>{inv.name || "—"}</div>
-                      <div style={{ fontSize:11, color:SCSS.textMuted, fontFamily:SCSS.fontMono }}>{inv.ticker}</div>
+                      <div style={{ fontWeight: 600 }}>{inv.name || "—"}</div>
+                      <div style={{ fontSize: 11, color: SCSS.textMuted, fontFamily: SCSS.fontMono }}>{inv.ticker}</div>
                     </td>
                     <td>{fmtE(inv.invested)}</td>
-                    <td style={{ fontWeight:600 }}>{fmtE(inv.current)}</td>
+                    <td style={{ fontWeight: 600 }}>{fmtE(inv.current)}</td>
                     <td>
                       <span className={`badge ${p >= 0 ? "badge-green" : "badge-red"}`}>
                         {p >= 0 ? "+" : ""}{p}%
                       </span>
                     </td>
-                    <td style={{ color: g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily:SCSS.fontMono }}>
+                    <td style={{ color: g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily: SCSS.fontMono }}>
                       {g >= 0 ? "+" : ""}{fmtE(g)}
                     </td>
                   </tr>

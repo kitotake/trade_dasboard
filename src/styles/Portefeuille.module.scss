@@ -1,15 +1,32 @@
+/* Portefeuille — legacy stub styles, dark theme */
+
 .container {
   padding: 2rem;
+  color: #fff;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 14px;
 
   th,
   td {
-    padding: 0.5rem;
+    padding: 10px 14px;
     text-align: left;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.3);
+  }
+
+  tbody tr:hover td {
+    background: rgba(255, 255, 255, 0.025);
   }
 }

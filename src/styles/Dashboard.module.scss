@@ -1,0 +1,122 @@
+:root {
+  --bg: #0b0d14;
+  --card: #0f1524;
+  --muted: rgba(255,255,255,0.32);
+  --muted-2: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.04);
+  --accent-cyan: #3ee1e6;
+  --accent-green: #4cd964;
+  --accent-red: #ff6b6b;
+  --accent-amber: #ffb86b;
+  --accent-violet: #9b7cff;
+  --text: #e6eef8;
+  --mono: "Roboto Mono", monospace;
+  --radius: 10px;
+}
+
+/* Global classes used in markup (keep names global so existing JSX works) */
+:global(.card) {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  color: var(--text);
+  box-shadow: 0 6px 18px rgba(2,6,23,0.5);
+}
+
+/* Card title */
+:global(.card-title) {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+/* Ghost button */
+:global(.btn-ghost) {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+:global(.btn-ghost:hover) { opacity: 0.95; transform: translateY(-1px); }
+
+/* Data table */
+:global(.data-table) {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--text);
+}
+:global(.data-table thead th) {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px 8px;
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+:global(.data-table tbody td) {
+  padding: 10px 8px;
+  border-bottom: 1px dashed var(--border);
+  vertical-align: middle;
+}
+
+/* Badges */
+:global(.badge) {
+  display: inline-block;
+  padding: 6px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0b0d14;
+}
+:global(.badge-green) { background: var(--accent-green); color: #021007; }
+:global(.badge-red) { background: var(--accent-red); color: #330808; }
+
+/* Empty state */
+:global(.empty-state) {
+  text-align: center;
+  color: var(--muted);
+  padding: 28px 12px;
+}
+
+/* Small helper styles used in dashboard */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Sector legend pills */
+.legend-pill {
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* mono font used in tables */
+.mono { font-family: var(--mono); }
+
+/* Fade-up animations (staggered) */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+:global(.fade-up) { animation: fadeUp 420ms ease both; }
+:global(.fade-up-1) { animation-delay: 40ms; }
+:global(.fade-up-2) { animation-delay: 80ms; }
+:global(.fade-up-3) { animation-delay: 120ms; }
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  :global(.card) { padding: 12px; }
+  .container { gap: 12px; }
+  :global(.data-table thead th) { font-size: 11px; }
+}

@@ -1,13 +1,11 @@
 import { useState, type FormEvent } from "react";
-import { DEV_CREDENTIALS, TEST_USERS } from "../utils/devCredentials";
+import { TEST_USERS } from "../utils/devCredentials";
 import styles from "../styles/Auth.module.scss";
 
 type Props = {
   onLogin?: () => void;
   onSwitchToRegister?: () => void;
 };
-
-DEV_CREDENTIALS; // Assure que les données de test sont chargées (utile pour le hot reload)
 
 export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
   const [email, setEmail] = useState("");
@@ -22,11 +20,9 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
       return;
     }
 
-    const user = TEST_USERS.find((u) => u.email === email && u.password === password); 
-    // Simule une vérification des identifiants
+    const user = TEST_USERS.find(u => u.email === email && u.password === password);
 
     if (user) {
-      setError("");
       if (onLogin) onLogin();
       else window.location.href = "/";
     } else {
@@ -56,7 +52,7 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
                 type="email"
                 placeholder="jean@exemple.fr"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -67,7 +63,7 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
                 type="password"
                 placeholder="Votre mot de passe"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -80,11 +76,7 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
 
         <div className={styles.switchRow}>
           Pas encore de compte ?
-          <button
-            type="button"
-            className={styles.switchLink}
-            onClick={() => onSwitchToRegister?.()}
-          >
+          <button type="button" className={styles.switchLink} onClick={() => onSwitchToRegister?.()}>
             Créer un compte
           </button>
         </div>

@@ -1,5 +1,3 @@
-import App from "../App";
-
 export type AuthRoute = "welcome" | "login" | "register";
 
 export type AppRoute =
@@ -37,7 +35,7 @@ export interface Investment {
   region?: string;
   risk?: string;
   notes?: string;
-}   
+}
 
 export interface Transaction {
   id: string;
@@ -48,7 +46,7 @@ export interface Transaction {
   shares?: number;
   price?: number;
   note?: string;
-} 
+}
 
 export interface Dividend {
   id: string;
@@ -77,7 +75,15 @@ export interface Profile {
   horizon?: string;
   tax?: string;
   mainGoal?: string;
-} 
+}
+
+export type Notification = {
+  id: string;
+  type: string;
+  msg: string;
+  time: string;
+};
+
 export interface AppData {
   investments: Investment[];
   transactions: Transaction[];
@@ -86,12 +92,6 @@ export interface AppData {
   notifications: Notification[];
   profile: Profile;
 }
-export type Notification = {
-  id: string;
-  type: string;
-  msg: string;
-  time: string;
-};
 
 export const emptyData: AppData = {
   investments: [],
@@ -102,25 +102,24 @@ export const emptyData: AppData = {
   profile: {},
 };
 
-export function loadData() {
+export function loadData(): AppData {
   const STORAGE_KEY = "financeFlowData";
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) return emptyData;
   try {
     const parsed = JSON.parse(raw) as Partial<AppData>;
     return { ...emptyData, ...parsed };
-  }
-  catch {
+  } catch {
     console.error("Failed to load data from localStorage, using empty data.");
     return emptyData;
   }
-} 
+}
 
-export function saveData(data: AppData) {
+export function saveData(data: AppData): void {
   const STORAGE_KEY = "financeFlowData";
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
     console.error("Failed to save data to localStorage.");
-  }  
+  }
 }
