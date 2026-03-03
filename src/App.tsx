@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { SCSS, GLOBAL_CSS, PAGES } from "./utils/theme";
 import { fmtE } from "./utils/helpers";
 import { initialData, type AppData, saveToStorage, clearStorage, withAutoSnapshot } from "./data/accountData";
+import type { Session } from "./utils/authStorage";
 import Dashboard from "./pages/Dashboard";
 import Portfolio from "./pages/Portfolio";
 import Transactions from "./pages/Transactions";
@@ -16,12 +17,32 @@ import Settings from "./pages/Settings";
 import AiChat from "./pages/AiChat";
 import "./styles/global.scss";
 
-export default function App() {
+interface AppProps {
+  session?: Session | null;
+  onLogout?: () => void;
+}
+
+export default function App({ session, onLogout }: AppProps) {
   const [page, setPage] = useState<string>("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
   const [data, setData] = useState<AppData>(initialData);
   const [saveIndicator, setSaveIndicator] = useState(false);
+
+  // Pré-remplir le profil avec les infos de session si le profil est vide
+  useEffect(() => {
+    if (session && !data.profile?.name && session.name) {
+      setData(d => ({
+        ...d,
+        profile: {
+          ...d.profile,
+          name: session.name,
+          email: session.email,
+        },
+      }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   useEffect(() => {
     const snapshotted = withAutoSnapshot(data);
@@ -36,6 +57,9 @@ export default function App() {
   }, [data]);
 
   const notifCount = (data.notifications || []).length;
+
+  // Nom affiché : session en priorité, puis profil
+  const displayName = session?.name || data.profile?.name || null;
 
   const handleSetData: React.Dispatch<React.SetStateAction<AppData>> = (action) => {
     setData(prev => {
@@ -63,7 +87,7 @@ export default function App() {
       case "reports":       return <Reports data={data} />;
       case "notifications": return <Notifications data={data} setData={handleSetData} />;
       case "profile":       return <ProfilePage data={data} setData={handleSetData} />;
-      case "settings":      return <Settings data={data} setData={handleSetData} />;
+      case "settings":      return <Settings data={data} setData={handleSetData} onLogout={onLogout} />;
       default: return null;
     }
   };
@@ -122,7 +146,30 @@ export default function App() {
             </div>
           )}
 
-          <button className="btn-ghost" onClick={() => setSidebarOpen(s => !s)} style={{ margin: "auto 14px 0", borderRadius: SCSS.radiusSm, padding: "10px", textAlign: "center", fontSize: 14 }}>
+          {/* Bouton déconnexion */}
+          {onLogout && (
+            <button
+              className="btn-ghost"
+              onClick={onLogout}
+              title="Se déconnecter"
+              style={{
+                margin: sidebarOpen ? "8px 14px 0" : "8px auto 0",
+                borderRadius: SCSS.radiusSm,
+                padding: "9px 10px",
+                textAlign: "center",
+                fontSize: 13,
+                color: SCSS.accentRed,
+                borderColor: `rgba(248,113,113,0.2)`,
+                width: sidebarOpen ? "calc(100% - 28px)" : 34,
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
+            >
+              {sidebarOpen ? "🚪 Déconnexion" : "🚪"}
+            </button>
+          )}
+
+          <button className="btn-ghost" onClick={() => setSidebarOpen(s => !s)} style={{ margin: "8px 14px 0", borderRadius: SCSS.radiusSm, padding: "10px", textAlign: "center", fontSize: 14 }}>
             {sidebarOpen ? "◀ Réduire" : "▶"}
           </button>
         </aside>
@@ -131,7 +178,7 @@ export default function App() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
             <div>
               <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, fontFamily: SCSS.fontDisplay, letterSpacing: -0.8 }}>
-                {page === "dashboard" ? `Bonjour${data.profile?.name ? ", " + data.profile.name.split(" ")[0] : ""} 👋` : PAGES.find(p => p.id === page)?.label}
+                {page === "dashboard" ? `Bonjour${displayName ? ", " + displayName.split(" ")[0] : ""} 👋` : PAGES.find(p => p.id === page)?.label}
               </h1>
               <div style={{ color: SCSS.textMuted, fontSize: 13, marginTop: 3 }}>
                 {new Date().toLocaleDateString("fr-FR", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
@@ -139,8 +186,19 @@ export default function App() {
             </div>
             <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
               <button className="btn-primary" onClick={() => setChatOpen(c => !c)}>🤖 Assistant IA</button>
-              <div onClick={() => setPage("profile")} style={{ width: 38, height: 38, borderRadius: "50%", cursor: "pointer", background: `linear-gradient(135deg, ${SCSS.accentViolet}, ${SCSS.accentCyan})`, display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontFamily: SCSS.fontDisplay, fontSize: 16 }}>
-                {data.profile?.name ? data.profile.name[0].toUpperCase() : "?"}
+              {/* Avatar cliquable → Profil */}
+              <div
+                onClick={() => setPage("profile")}
+                title={displayName || session?.email || "Profil"}
+                style={{
+                  width: 38, height: 38, borderRadius: "50%", cursor: "pointer",
+                  background: `linear-gradient(135deg, ${SCSS.accentViolet}, ${SCSS.accentCyan})`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontWeight: 700, fontFamily: SCSS.fontDisplay, fontSize: 16,
+                  flexShrink: 0,
+                }}
+              >
+                {displayName ? displayName[0].toUpperCase() : (session?.email?.[0]?.toUpperCase() ?? "?")}
               </div>
             </div>
           </div>

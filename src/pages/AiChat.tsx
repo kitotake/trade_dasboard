@@ -21,11 +21,40 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
   const [typing, setTyping] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
+  // connexion/état réseau pour l'assistant
+  // "online" : en mesure d'envoyer des requêtes à l'API
+  // "offline" : déconnecté, l'envoi est bloqué
+  // "reconnect" : tentative de reconnexion disponible (clé manquante ou échec précédent)
+  const [connection, setConnection] = useState<'online' | 'offline' | 'reconnect'>(
+    API_KEY ? 'online' : 'reconnect'
+  );
+
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [history, typing]);
 
+  // tente de repasser en ligne si la clé est présente
+  const tryReconnect = () => {
+    if (API_KEY) {
+      setConnection('online');
+      setHistory(h => [...h, { role: 'ai', text: 'Reconnecté. Mode en ligne activé.' }]);
+    } else {
+      setHistory(h => [...h, { role: 'ai', text: 'Aucune clé API configurée.' }]);
+    }
+  };
+
   const send = async () => {
+    if (connection === 'offline') {
+      setHistory(h => [
+        ...h,
+        {
+          role: 'ai',
+          text: "Vous êtes hors ligne. Passez en mode en ligne pour envoyer des messages."
+        },
+      ]);
+      return;
+    }
+
     if (!chatMsg.trim()) return;
     const msg = chatMsg;
     setChatMsg("");
@@ -65,8 +94,9 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
         ...h,
         { role: "ai", text: text || (d2.error?.message ?? "Désolé, je n'ai pas pu répondre.") },
       ]);
-    } catch {
+    } catch (err) {
       setHistory(h => [...h, { role: "ai", text: "Erreur de connexion. Réessayez." }]);
+      setConnection('reconnect');
     }
     setTyping(false);
   };
@@ -90,11 +120,48 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
             background: `linear-gradient(135deg, ${SCSS.accentCyan}, ${SCSS.accentViolet})`,
             display: "flex", alignItems: "center", justifyContent: "center", fontSize: 17,
           }}>🤖</div>
-          <div>
+          <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontWeight: 700, fontSize: 14 }}>Assistant IA</div>
-            <div style={{ fontSize: 11, color: SCSS.accentGreen, display: "flex", alignItems: "center", gap: 4 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: SCSS.accentGreen, animation: "blink 2s infinite" }} />
-              En ligne
+            <div style={{ fontSize: 11, display: "flex", alignItems: "center", gap: 4 }}>
+              <div
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: "50%",
+                  background: connection === 'online' ? SCSS.accentGreen : connection === 'offline' ? '#f56260' : '#f5a623',
+                  animation: connection === 'online' ? "blink 2s infinite" : undefined,
+                }}
+              />
+              {connection === 'online' && "En ligne"}
+              {connection === 'offline' && "Hors ligne"}
+              {connection === 'reconnect' && "Reconnectez-vous"}
+            </div>
+            <div style={{ marginTop: 4, display: "flex", gap: 6 }}>
+              <button
+                className="btn-ghost"
+                style={{ padding: "2px 6px", fontSize: 11 }}
+                onClick={() => setConnection('online')}
+                disabled={connection === 'online'}
+              >
+                En ligne
+              </button>
+              <button
+                className="btn-ghost"
+                style={{ padding: "2px 6px", fontSize: 11 }}
+                onClick={() => setConnection('offline')}
+                disabled={connection === 'offline'}
+              >
+                Hors ligne
+              </button>
+              {connection === 'reconnect' && (
+                <button
+                  className="btn-primary"
+                  style={{ padding: "2px 6px", fontSize: 11 }}
+                  onClick={tryReconnect}
+                >
+                  Reconnect
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -103,12 +170,16 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
 
       {/* Messages */}
       <div style={{ flex: 1, overflowY: "auto", padding: "16px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {!API_KEY && (
+        {(connection === 'reconnect' || !API_KEY) && (
           <div style={{
             background: "rgba(252,211,77,0.1)", border: `1px solid rgba(252,211,77,0.25)`,
             borderRadius: 10, padding: "10px 14px", fontSize: 12, color: SCSS.accentAmber,
           }}>
-            ⚠️ Clé API non configurée. Définissez <code>VITE_ANTHROPIC_API_KEY</code> dans votre fichier <code>.env</code>.
+            ⚠️ { !API_KEY ?
+              <>Clé API non configurée. Définissez <code>VITE_ANTHROPIC_API_KEY</code> dans votre fichier <code>.env</code>.</>
+              :
+              <>Connexion perdue. Cliquez sur <strong>Reconnect</strong> en haut.</>
+            }
           </div>
         )}
         {history.map((m, i) => (
@@ -143,10 +214,11 @@ const AiChat: React.FC<AiChatProps> = ({ data, onClose }) => {
           value={chatMsg}
           onChange={e => setChatMsg(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
-          placeholder="Posez une question…"
+          placeholder={connection === 'online' ? "Posez une question…" : connection === 'offline' ? "Hors ligne" : "Reconnectez-vous"}
           style={{ flex: 1, borderRadius: 10 }}
+          disabled={connection !== 'online'}
         />
-        <button className="btn-primary" style={{ padding: "0 16px" }} onClick={send}>➤</button>
+        <button className="btn-primary" style={{ padding: "0 16px" }} onClick={send} disabled={connection !== 'online'}>➤</button>
       </div>
     </div>
   );

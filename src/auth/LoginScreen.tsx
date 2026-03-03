@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { TEST_USERS } from "../utils/devCredentials";
+import { login, saveSession } from "../utils/authStorage";
 import styles from "../styles/Auth.module.scss";
 
 type Props = {
@@ -11,22 +11,31 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
     if (!email || !password) {
       setError("Veuillez remplir tous les champs.");
       return;
     }
 
-    const user = TEST_USERS.find(u => u.email === email && u.password === password);
+    setLoading(true);
+    const result = login(email, password);
+    setLoading(false);
 
-    if (user) {
-      if (onLogin) onLogin();
-      else window.location.href = "/";
+    if (result.ok) {
+      // Persist session so RootNavigator peut la relire au rechargement
+      saveSession({
+        userId: result.user.id,
+        email: result.user.email,
+        name: result.user.name,
+      });
+      onLogin?.();
     } else {
-      setError("Email ou mot de passe incorrect");
+      setError(result.error);
     }
   };
 
@@ -53,6 +62,7 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
                 placeholder="jean@exemple.fr"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
+                autoComplete="email"
                 required
               />
             </div>
@@ -64,15 +74,34 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
                 placeholder="Votre mot de passe"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
+                autoComplete="current-password"
                 required
               />
             </div>
           </div>
 
-          <button type="submit" className={styles.submit}>
-            Se connecter →
+          <button type="submit" className={styles.submit} disabled={loading}>
+            {loading ? "Connexion…" : "Se connecter →"}
           </button>
         </form>
+
+        {/* Comptes de test visibles en dev uniquement */}
+        {import.meta.env.DEV && (
+          <div style={{
+            marginTop: 12,
+            padding: "10px 14px",
+            background: "rgba(110,231,247,0.06)",
+            border: "1px solid rgba(110,231,247,0.15)",
+            borderRadius: 10,
+            fontSize: 12,
+            color: "rgba(255,255,255,0.4)",
+            lineHeight: 1.7,
+          }}>
+            <strong style={{ color: "rgba(255,255,255,0.55)" }}>Comptes de test</strong><br />
+            dev@test.com / Dev123!<br />
+            alice@example.com / password123
+          </div>
+        )}
 
         <div className={styles.switchRow}>
           Pas encore de compte ?

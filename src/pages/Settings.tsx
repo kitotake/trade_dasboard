@@ -6,9 +6,10 @@ import type { AppData } from "../data/accountData";
 interface SettingsProps {
   data: AppData;
   setData: Dispatch<SetStateAction<AppData>>;
+  onLogout?: () => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ data, setData }) => {
+const Settings: React.FC<SettingsProps> = ({ data, setData, onLogout }) => {
   const s = data.settings || {};
   const upd = (key: string, val: unknown) =>
     setData(d => ({ ...d, settings: { ...(d.settings || {}), [key]: val } }));
@@ -99,6 +100,18 @@ const Settings: React.FC<SettingsProps> = ({ data, setData }) => {
           🗑️ Réinitialiser toutes les données
         </button>
       </div>
+
+      {onLogout && (
+        <div className="card fade-up fade-up-4">
+          <div className="card-title">🔐 Compte</div>
+          <div style={{ color: SCSS.textSecondary, fontSize: 13, marginBottom: 16, lineHeight: 1.6 }}>
+            Déconnectez-vous de votre session. Vos données locales seront conservées.
+          </div>
+          <button className="btn-danger" onClick={onLogout}>
+            🚪 Se déconnecter
+          </button>
+        </div>
+      )}
     </div>
   );
 };
