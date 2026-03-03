@@ -6,7 +6,6 @@
 
 import type { FC } from "react";
 import FormField from "./FormField";
-import { SCSS } from "../utils/theme";
 import type { Investment } from "../data/accountData";
 
 // ── Form state (string inputs pour éviter le bug "0 persistant" dans input) ──

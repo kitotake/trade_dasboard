@@ -10,14 +10,14 @@
 import { useState, type FC } from "react";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
-import InvestmentTable  from "../components/InvestmentTable.tsx/index.ts";
-import InvestmentDetail from "../components/InvestmentDetail.tsx/index.ts";
+import InvestmentTable from "../components/InvestmentTable";
+import InvestmentDetail from "../components/InvestmentDetail";
 import InvestmentForm, {
   EMPTY_FORM,
   formToInvestment,
   investmentToForm,
   type FormValues,
-} from "../components/InvestmentForm.tsx";
+} from "../components/InvestmentForm";
 import ImportModal from "../components/ImportModal";
 import { SCSS } from "../utils/theme";
 import { uid } from "../utils/helpers";
@@ -82,9 +82,9 @@ const Portfolio: FC<PortfolioProps> = ({ data, setData }) => {
     return (
       <InvestmentDetail
         inv={inv}
-        onBack={()       => setDetail(null)}
+        onBack={() => setDetail(null)}
         onEdit={openEdit}
-        onDelete={id     => { handleDelete(id); }}
+        onDelete={(id: string) => { handleDelete(id); }}
       />
     );
   }
