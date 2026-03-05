@@ -1,4 +1,9 @@
-// types for the app data state
+// ── src/data/accountData.ts ───────────────────────────────────────────────────
+// Source unique de vérité pour tous les types de l'application.
+// Les types dupliqués dans utils/types.ts ont été supprimés et remplacés
+// par des re-exports depuis ce fichier.
+
+// ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface Investment {
   id: string;
@@ -45,13 +50,6 @@ export interface Goal {
   note?: string;
 }
 
-export interface Avis {
-  id: string;
-  text: string;
-  rating: number;
-  date: string;
-}
-
 export interface Notification {
   id: string;
   type: string;
@@ -68,7 +66,7 @@ export interface Profile {
   mainGoal?: string;
 }
 
-export interface Settings {
+export interface AppSettings {
   currency?: string;
   dateFormat?: string;
   language?: string;
@@ -93,13 +91,14 @@ export interface AppData {
   transactions: Transaction[];
   dividends: Dividend[];
   goals: Goal[];
-  avis: Avis[];
   notifications: Notification[];
   portfolioHistory: PortfolioHistoryItem[];
   accounts: Accounts;
   profile: Profile;
-  settings: Settings;
+  settings: AppSettings;
 }
+
+// ── Storage ───────────────────────────────────────────────────────────────────
 
 const STORAGE_KEY = "trade-dashboard_data_v1";
 
@@ -108,10 +107,9 @@ const emptyData: AppData = {
   transactions: [],
   dividends: [],
   goals: [],
-  avis: [],
   notifications: [],
   portfolioHistory: [],
-  accounts: { pea: undefined, cc: undefined },
+  accounts: {},
   profile: {},
   settings: {},
 };
@@ -121,7 +119,6 @@ function loadFromStorage(): AppData {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return emptyData;
     const parsed = JSON.parse(raw) as Partial<AppData>;
-    // Merge with emptyData to ensure all keys exist
     return { ...emptyData, ...parsed };
   } catch {
     return emptyData;
@@ -131,8 +128,8 @@ function loadFromStorage(): AppData {
 export function saveToStorage(data: AppData): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  } catch {
-    // storage quota exceeded or unavailable
+  } catch (err) {
+    console.warn("[trade-dashboard] saveToStorage échoué :", err);
   }
 }
 
@@ -140,26 +137,36 @@ export function clearStorage(): void {
   localStorage.removeItem(STORAGE_KEY);
 }
 
-/** Auto-snapshot: adds a portfolio history point for "today" if not already present */
+/** Auto-snapshot : ajoute un point d'historique pour le mois courant si absent */
 export function withAutoSnapshot(data: AppData): AppData {
-  const total = (data.investments || []).reduce((s, i) => s + (Number(i.current) || 0), 0);
+  const total = (data.investments || []).reduce(
+    (s, i) => s + (Number(i.current) || 0),
+    0
+  );
   if (total === 0) return data;
 
-  const today = new Date().toLocaleDateString("fr-FR", { month: "short", year: "2-digit" });
+  const today = new Date().toLocaleDateString("fr-FR", {
+    month: "short",
+    year: "2-digit",
+  });
   const history = data.portfolioHistory || [];
   const last = history[history.length - 1];
 
-  // Update existing snapshot for this period or add a new one
   if (last && last.label === today) {
     if (last.value === total) return data;
-    const updated = [...history.slice(0, -1), { label: today, value: total }];
-    return { ...data, portfolioHistory: updated };
+    return {
+      ...data,
+      portfolioHistory: [
+        ...history.slice(0, -1),
+        { label: today, value: total },
+      ],
+    };
   }
 
-  // Keep max 24 points
-  const trimmed = history.slice(-23);
-  return { ...data, portfolioHistory: [...trimmed, { label: today, value: total }] };
+  return {
+    ...data,
+    portfolioHistory: [...history.slice(-23), { label: today, value: total }],
+  };
 }
 
-// initial state — load from localStorage if available
 export const initialData: AppData = loadFromStorage();

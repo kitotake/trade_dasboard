@@ -1,3 +1,5 @@
+// ── src/utils/theme.ts ────────────────────────────────────────────────────────
+
 export const SCSS = {
   bgBase: "#08090D",
   bgSurface: "#0D0F17",
@@ -26,25 +28,27 @@ export const GLOBAL_CSS = `
 
 export const RISK_COLORS: Record<string, string> = {
   Faible: SCSS.accentGreen,
-  Moyen: SCSS.accentAmber,
-  Élevé: SCSS.accentRed,
+  Moyen:  SCSS.accentAmber,
+  Élevé:  SCSS.accentRed,
 };
 
 export const SECTOR_COLORS = [
-  "#6EE7F7","#B197FC","#34D399","#FCD34D","#F87171","#60A5FA","#FB923C","#A3E635"
+  "#6EE7F7", "#B197FC", "#34D399", "#FCD34D",
+  "#F87171", "#60A5FA", "#FB923C", "#A3E635",
 ];
 
+// "Avis" supprimé : les feedbacks stockés localement n'ont aucune utilité
+// (personne d'autre ne les lit). Remplacer par un lien externe si besoin.
 export const PAGES = [
-  { id: "dashboard",     label: "Dashboard",       icon: "⚡" },
-  { id: "portfolio",     label: "Portefeuille",     icon: "📊" },
-  { id: "transactions",  label: "Transactions",     icon: "↕️" },
-  { id: "dividends",     label: "Dividendes",       icon: "💰" },
-  { id: "goals",         label: "Objectifs",        icon: "🎯" },
-  { id: "analysis",      label: "Analyse",          icon: "📈" },
-  { id: "simulation",    label: "Simulation",       icon: "🔬" },
-  { id: "reports",       label: "Rapports",         icon: "📋" },
-  { id: "avis",          label: "Avis",             icon: "💬" },
-  { id: "notifications", label: "Notifications",    icon: "🔔" },
-  { id: "profile",       label: "Profil",           icon: "👤" },
-  { id: "settings",      label: "Paramètres",       icon: "⚙️" },
+  { id: "dashboard",     label: "Dashboard",    icon: "⚡" },
+  { id: "portfolio",     label: "Portefeuille",  icon: "📊" },
+  { id: "transactions",  label: "Transactions",  icon: "↕️" },
+  { id: "dividends",     label: "Dividendes",    icon: "💰" },
+  { id: "goals",         label: "Objectifs",     icon: "🎯" },
+  { id: "analysis",      label: "Analyse",       icon: "📈" },
+  { id: "simulation",    label: "Simulation",    icon: "🔬" },
+  { id: "reports",       label: "Rapports",      icon: "📋" },
+  { id: "notifications", label: "Notifications", icon: "🔔" },
+  { id: "profile",       label: "Profil",        icon: "👤" },
+  { id: "settings",      label: "Paramètres",    icon: "⚙️" },
 ];
