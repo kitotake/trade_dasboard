@@ -11,6 +11,7 @@ import Goals from "./pages/Goals";
 import Analysis from "./pages/Analysis";
 import Simulation from "./pages/Simulation";
 import Reports from "./pages/Reports";
+import Avis from "./pages/Avis";
 import Notifications from "./pages/Notifications";
 import ProfilePage from "./pages/Profile";
 import Settings from "./pages/Settings";
@@ -85,6 +86,7 @@ export default function App({ session, onLogout }: AppProps) {
       case "analysis":      return <Analysis data={data} />;
       case "simulation":    return <Simulation data={data} />;
       case "reports":       return <Reports data={data} />;
+      case "avis":          return <Avis data={data} setData={handleSetData} />;
       case "notifications": return <Notifications data={data} setData={handleSetData} />;
       case "profile":       return <ProfilePage data={data} setData={handleSetData} />;
       case "settings":      return <Settings data={data} setData={handleSetData} onLogout={onLogout} />;

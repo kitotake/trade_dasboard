@@ -43,6 +43,7 @@ export const PAGES = [
   { id: "analysis",      label: "Analyse",          icon: "📈" },
   { id: "simulation",    label: "Simulation",       icon: "🔬" },
   { id: "reports",       label: "Rapports",         icon: "📋" },
+  { id: "avis",          label: "Avis",             icon: "💬" },
   { id: "notifications", label: "Notifications",    icon: "🔔" },
   { id: "profile",       label: "Profil",           icon: "👤" },
   { id: "settings",      label: "Paramètres",       icon: "⚙️" },

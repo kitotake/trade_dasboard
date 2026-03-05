@@ -45,6 +45,13 @@ export interface Goal {
   note?: string;
 }
 
+export interface Avis {
+  id: string;
+  text: string;
+  rating: number;
+  date: string;
+}
+
 export interface Notification {
   id: string;
   type: string;
@@ -86,6 +93,7 @@ export interface AppData {
   transactions: Transaction[];
   dividends: Dividend[];
   goals: Goal[];
+  avis: Avis[];
   notifications: Notification[];
   portfolioHistory: PortfolioHistoryItem[];
   accounts: Accounts;
@@ -100,6 +108,7 @@ const emptyData: AppData = {
   transactions: [],
   dividends: [],
   goals: [],
+  avis: [],
   notifications: [],
   portfolioHistory: [],
   accounts: { pea: undefined, cc: undefined },
