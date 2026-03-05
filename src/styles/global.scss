@@ -311,22 +311,10 @@ select option { background: #1a1d2e; }
 .modal-body { padding: 22px 24px; display: flex; flex-direction: column; gap: 14px; }
 .form-field { display: flex; flex-direction: column; gap: 7px; }
 
-/* ──────────────────────────────────────
-   RESPONSIVE MOBILE
-────────────────────────────────────── */
-
-/* Breakpoints :
-   sm  : ≤ 640px  (mobile portrait)
-   md  : ≤ 900px  (tablette / mobile landscape)
-*/
-
-/* Tablette : sidebar icônes seulement */
+/* ──────────────────────────────────────────────────────────────
+   RESPONSIVE — Tablette ≤ 900px
+────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  /* Sidebar passe en icônes uniquement */
-  .sidebar-forced-collapse {
-    width: 62px !important;
-  }
-
   /* Grilles KPI 4 colonnes → 2 colonnes */
   .kpi-grid {
     grid-template-columns: repeat(2, 1fr) !important;
@@ -353,51 +341,11 @@ select option { background: #1a1d2e; }
   .kpi-value { font-size: 20px; }
 }
 
-/* Mobile portrait */
+/* ──────────────────────────────────────────────────────────────
+   RESPONSIVE — Mobile portrait ≤ 640px
+────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
-  /* Sidebar en bottom nav */
-  .sidebar-mobile {
-    position: fixed !important;
-    left: 0 !important; right: 0 !important;
-    bottom: 0 !important; top: auto !important;
-    width: 100% !important;
-    height: 60px !important;
-    flex-direction: row !important;
-    padding: 0 !important;
-    border-right: none !important;
-    border-top: 1px solid rgba(255,255,255,0.07) !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    justify-content: flex-start !important;
-    z-index: 200 !important;
-  }
-
-  .sidebar-mobile .nav-btn {
-    flex-direction: column !important;
-    gap: 2px !important;
-    padding: 6px 10px !important;
-    min-width: 56px !important;
-    font-size: 10px !important;
-    align-items: center !important;
-    white-space: nowrap !important;
-    flex-shrink: 0 !important;
-  }
-
-  .sidebar-mobile .nav-btn.active::before {
-    left: auto !important;
-    top: 0 !important; bottom: auto !important;
-    right: 0 !important;
-    width: 100% !important; height: 2px !important;
-    border-radius: 0 0 3px 3px !important;
-  }
-
-  /* Masquer sidebar-only elements en mobile */
-  .sidebar-portfolio-total,
-  .sidebar-save-indicator,
-  .sidebar-logout,
-  .sidebar-collapse { display: none !important; }
-
-  /* Main : padding bottom pour la bottom nav */
+  /* Main : padding bottom pour laisser de l'espace à la bottom nav */
   .main-content {
     margin-left: 0 !important;
     padding: 16px 12px 76px !important;
@@ -413,6 +361,12 @@ select option { background: #1a1d2e; }
   /* InvestmentForm : 2col → 1col */
   .form-grid-2col { grid-template-columns: 1fr !important; }
 
+  /* Masquer les éléments sidebar-only en mobile */
+  .sidebar-portfolio-total,
+  .sidebar-save-indicator,
+  .sidebar-logout,
+  .sidebar-collapse { display: none !important; }
+
   /* Header */
   .app-header h1 { font-size: 18px !important; }
   .app-header-actions .btn-primary { padding: 8px 12px !important; font-size: 12px !important; }
@@ -427,9 +381,18 @@ select option { background: #1a1d2e; }
   /* Modal plein écran */
   .modal-box { max-width: 100% !important; border-radius: 12px; }
   .modal-overlay { padding: 12px 8px !important; align-items: flex-end !important; }
+
+  /* Bottom nav active indicator : trait en haut plutôt qu'à gauche */
+  .nav-btn.active::before {
+    left: auto !important;
+    top: 0 !important; bottom: auto !important;
+    right: 0 !important;
+    width: 100% !important; height: 2px !important;
+    border-radius: 0 0 3px 3px !important;
+  }
 }
 
-/* Accessibilité : sr-only */
+/* ── Accessibilité : sr-only ── */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
   padding: 0; margin: -1px; overflow: hidden;

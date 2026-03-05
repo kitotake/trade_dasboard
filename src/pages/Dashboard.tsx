@@ -34,7 +34,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
 
   return (
     <div>
-      {/* KPI cards — kpi-grid devient 2 colonnes sur tablette/mobile via CSS */}
+      {/* kpi-grid — 4 colonnes desktop, 2 colonnes tablette/mobile via CSS */}
       <div
         className="kpi-grid"
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 28 }}
@@ -45,7 +45,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
         <KpiCard icon="💰" label="Dividendes"     value={fmtE(totalDiv)}     color={SCSS.accentAmber}  empty={!totalDiv} />
       </div>
 
-      {/* Charts row — grid-2col devient 1 col sur tablette/mobile */}
+      {/* grid-2col — 2:1 desktop, 1 col tablette/mobile */}
       <div className="grid-2col" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginBottom: 28 }}>
         <div className="card fade-up fade-up-1">
           <div className="card-title">Évolution du portefeuille</div>
@@ -103,7 +103,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
         </div>
       </div>
 
-      {/* Positions table avec scroll horizontal sur mobile */}
+      {/* Positions table avec scroll horizontal sur mobile via data-table-wrap */}
       <div className="card fade-up fade-up-3">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span className="card-title" style={{ marginBottom: 0 }}>Positions</span>

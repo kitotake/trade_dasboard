@@ -1,7 +1,6 @@
 // ── src/data/accountData.ts ───────────────────────────────────────────────────
 // Source unique de vérité pour tous les types de l'application.
-// Les types dupliqués dans utils/types.ts ont été supprimés et remplacés
-// par des re-exports depuis ce fichier.
+// Les données sont isolées par userId — chaque compte a son propre storage.
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -98,9 +97,14 @@ export interface AppData {
   settings: AppSettings;
 }
 
-// ── Storage ───────────────────────────────────────────────────────────────────
+// ── Storage — isolé par userId ────────────────────────────────────────────────
 
-const STORAGE_KEY = "trade-dashboard_data_v1";
+const BASE_KEY = "trade-dashboard_data_v1";
+
+/** Retourne la clé localStorage propre à l'utilisateur connecté */
+function storageKey(userId?: string): string {
+  return userId ? `${BASE_KEY}_${userId}` : BASE_KEY;
+}
 
 const emptyData: AppData = {
   investments: [],
@@ -114,9 +118,9 @@ const emptyData: AppData = {
   settings: {},
 };
 
-function loadFromStorage(): AppData {
+export function loadFromStorage(userId?: string): AppData {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey(userId));
     if (!raw) return emptyData;
     const parsed = JSON.parse(raw) as Partial<AppData>;
     return { ...emptyData, ...parsed };
@@ -125,16 +129,16 @@ function loadFromStorage(): AppData {
   }
 }
 
-export function saveToStorage(data: AppData): void {
+export function saveToStorage(data: AppData, userId?: string): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    localStorage.setItem(storageKey(userId), JSON.stringify(data));
   } catch (err) {
     console.warn("[trade-dashboard] saveToStorage échoué :", err);
   }
 }
 
-export function clearStorage(): void {
-  localStorage.removeItem(STORAGE_KEY);
+export function clearStorage(userId?: string): void {
+  localStorage.removeItem(storageKey(userId));
 }
 
 /** Auto-snapshot : ajoute un point d'historique pour le mois courant si absent */
@@ -169,4 +173,5 @@ export function withAutoSnapshot(data: AppData): AppData {
   };
 }
 
-export const initialData: AppData = loadFromStorage();
+// initialData sans userId — sera rechargé dans App.tsx une fois la session connue
+export const initialData: AppData = emptyData;

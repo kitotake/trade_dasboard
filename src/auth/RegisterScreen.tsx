@@ -64,24 +64,53 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
         <form onSubmit={handleSubmit}>
           <div className={styles.fields}>
             <div className={styles.fieldGroup}>
-              <label className={styles.label}>Prénom / Nom <span style={{ color: "rgba(255,255,255,0.2)" }}>(optionnel)</span></label>
-              <input className={styles.input} type="text" placeholder="Jean Dupont" value={name}
-                onChange={e => setName(e.target.value)} autoComplete="name" />
+              <label className={styles.label}>
+                Prénom / Nom <span style={{ color: "rgba(255,255,255,0.2)" }}>(optionnel)</span>
+              </label>
+              <input
+                className={styles.input}
+                type="text"
+                placeholder="Jean Dupont"
+                value={name}
+                onChange={e => setName(e.target.value)}
+                autoComplete="name"
+              />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Adresse email *</label>
-              <input className={styles.input} type="email" placeholder="jean@exemple.fr" value={email}
-                onChange={e => setEmail(e.target.value)} autoComplete="email" required />
+              <input
+                className={styles.input}
+                type="email"
+                placeholder="jean@exemple.fr"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                autoComplete="email"
+                required
+              />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Mot de passe *</label>
-              <input className={styles.input} type="password" placeholder="Minimum 6 caractères" value={password}
-                onChange={e => setPassword(e.target.value)} autoComplete="new-password" required />
+              <input
+                className={styles.input}
+                type="password"
+                placeholder="Minimum 6 caractères"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Confirmer le mot de passe *</label>
-              <input className={styles.input} type="password" placeholder="••••••••" value={confirm}
-                onChange={e => setConfirm(e.target.value)} autoComplete="new-password" required />
+              <input
+                className={styles.input}
+                type="password"
+                placeholder="••••••••"
+                value={confirm}
+                onChange={e => setConfirm(e.target.value)}
+                autoComplete="new-password"
+                required
+              />
             </div>
           </div>
 

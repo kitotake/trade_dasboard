@@ -4,8 +4,6 @@
 // ⚠️  SÉCURITÉ : bcryptjs est utilisé pour hasher les mots de passe côté client.
 // C'est mieux que simpleHash(), mais le stockage reste dans localStorage.
 // En production, migrez vers un backend avec PostgreSQL / Supabase / Firebase.
-//
-
 
 import bcrypt from "bcryptjs";
 
@@ -69,7 +67,7 @@ async function ensureTestUsers(): Promise<void> {
   if (changed) saveUsers(users);
 }
 
-// ── API publique — async (bcrypt est asynchrone) ────────────────────────────────
+// ── API publique — async (bcrypt est asynchrone) ───────────────────────────────
 
 export type RegisterResult =
   | { ok: true;  user: StoredUser }
@@ -112,7 +110,7 @@ export async function login(email: string, password: string): Promise<LoginResul
   const user      = users.find(u => u.email === trimEmail);
 
   if (!user) {
-    // Délai constant pour éviter le timing attack (même si côté client)
+    // Délai constant pour atténuer le timing attack (même si côté client)
     await bcrypt.hash("dummy", SALT_ROUNDS);
     return { ok: false, error: "Email ou mot de passe incorrect." };
   }

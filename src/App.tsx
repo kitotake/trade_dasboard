@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { SCSS, GLOBAL_CSS, PAGES } from "./utils/theme";
 import { fmtE } from "./utils/helpers";
 import {
-  initialData,
+  loadFromStorage,
   type AppData,
   saveToStorage,
   clearStorage,
@@ -28,7 +28,6 @@ interface AppProps {
   onLogout?: () => void;
 }
 
-/** Retourne true si viewport ≤ 640px */
 function useIsMobile() {
   const [mobile, setMobile] = useState(() => window.innerWidth <= 640);
   useEffect(() => {
@@ -39,7 +38,6 @@ function useIsMobile() {
   return mobile;
 }
 
-/** Retourne true si viewport ≤ 900px */
 function useIsTablet() {
   const [tablet, setTablet] = useState(() => window.innerWidth <= 900);
   useEffect(() => {
@@ -54,15 +52,23 @@ export default function App({ session, onLogout }: AppProps) {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
 
-  // Sur tablette la sidebar est forcée en mode icônes
-  const [sidebarOpen, setSidebarOpen] = useState(!isTablet);
-  const [page,          setPage]        = useState<string>("dashboard");
-  const [chatOpen,      setChatOpen]    = useState(false);
-  const [data,          setDataRaw]     = useState<AppData>(initialData);
-  const [saveIndicator, setSaveIndicator] = useState(false);
-  const [dataError,     setDataError]   = useState<string | null>(null);
+  const userId = session?.userId;
 
-  // Ferme la sidebar automatiquement quand on passe en mode tablette
+  const [sidebarOpen,   setSidebarOpen]   = useState(!isTablet);
+  const [page,          setPage]          = useState<string>("dashboard");
+  const [chatOpen,      setChatOpen]      = useState(false);
+
+  // Charge les données propres à cet userId dès le montage
+  const [data,          setDataRaw]       = useState<AppData>(() => loadFromStorage(userId));
+  const [saveIndicator, setSaveIndicator] = useState(false);
+  const [dataError,     setDataError]     = useState<string | null>(null);
+
+  // ── Recharge les données quand le compte change ──────────────────────────────
+  useEffect(() => {
+    setDataRaw(loadFromStorage(userId));
+    setPage("dashboard");
+  }, [userId]);
+
   useEffect(() => { if (isTablet) setSidebarOpen(false); }, [isTablet]);
 
   // Pré-remplir le profil avec les infos de session si le profil est vide
@@ -74,8 +80,9 @@ export default function App({ session, onLogout }: AppProps) {
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session?.userId]);
 
+  // ── Sauvegarde automatique — clé propre au userId ────────────────────────────
   useEffect(() => {
     try {
       const snapshotted = withAutoSnapshot(data);
@@ -83,7 +90,7 @@ export default function App({ session, onLogout }: AppProps) {
         setDataRaw(snapshotted);
         return;
       }
-      saveToStorage(data);
+      saveToStorage(data, userId);
       setSaveIndicator(true);
       const t = setTimeout(() => setSaveIndicator(false), 1200);
       return () => clearTimeout(t);
@@ -91,7 +98,7 @@ export default function App({ session, onLogout }: AppProps) {
       console.error("[App] Erreur lors de la sauvegarde :", err);
       setDataError("Impossible de sauvegarder les données.");
     }
-  }, [data]);
+  }, [data, userId]);
 
   const handleSetData: React.Dispatch<React.SetStateAction<AppData>> = useCallback(
     (action) => {
@@ -104,7 +111,7 @@ export default function App({ session, onLogout }: AppProps) {
             next.dividends.length === 0 &&
             next.goals.length === 0 &&
             next.portfolioHistory.length === 0;
-          if (isReset) clearStorage();
+          if (isReset) clearStorage(userId);
           return next;
         });
         setDataError(null);
@@ -113,7 +120,7 @@ export default function App({ session, onLogout }: AppProps) {
         setDataError("Une erreur est survenue lors de la mise à jour.");
       }
     },
-    []
+    [userId]
   );
 
   const notifCount  = (data.notifications || []).length;
@@ -136,10 +143,7 @@ export default function App({ session, onLogout }: AppProps) {
     }
   };
 
-  // ── En mode mobile, on rend une bottom nav ──────────────────────────────────
   const sidebarWidth = isMobile ? 0 : (sidebarOpen ? 230 : 62);
-
-  // Pages visibles dans la bottom nav mobile (les 6 premières + notifications)
   const mobileNavPages = [...PAGES.slice(0, 6), PAGES.find(p => p.id === "notifications")!];
 
   return (
@@ -147,13 +151,12 @@ export default function App({ session, onLogout }: AppProps) {
       <style>{GLOBAL_CSS}</style>
       <div style={{ display: "flex", minHeight: "100vh", background: SCSS.bgBase }}>
 
-        {/* Ambient gradients */}
         <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
           <div style={{ position: "absolute", top: -300, left: -200, width: 700, height: 700, background: `radial-gradient(circle, ${SCSS.accentCyan}06 0%, transparent 65%)` }} />
           <div style={{ position: "absolute", bottom: -200, right: -100, width: 600, height: 600, background: `radial-gradient(circle, ${SCSS.accentViolet}05 0%, transparent 65%)` }} />
         </div>
 
-        {/* ── SIDEBAR — desktop & tablette ── */}
+        {/* ── SIDEBAR ── */}
         {!isMobile && (
           <aside style={{
             width: sidebarOpen ? 230 : 62,
@@ -166,7 +169,6 @@ export default function App({ session, onLogout }: AppProps) {
             transition: "width 0.3s cubic-bezier(0.4,0,0.2,1)",
             overflow: "hidden",
           }}>
-            {/* Logo */}
             <div style={{ padding: "0 18px 28px", display: "flex", alignItems: "center", gap: 12, whiteSpace: "nowrap" }}>
               <div style={{
                 width: 34, height: 34, borderRadius: 10, flexShrink: 0,
@@ -180,7 +182,6 @@ export default function App({ session, onLogout }: AppProps) {
               )}
             </div>
 
-            {/* Portfolio total */}
             {sidebarOpen && (
               <div className="sidebar-portfolio-total" style={{ margin: "0 14px 22px", background: "rgba(255,255,255,0.04)", borderRadius: SCSS.radiusSm, padding: "12px 14px" }}>
                 <div style={{ fontSize: 11, color: SCSS.textMuted, textTransform: "uppercase", letterSpacing: 1.5, marginBottom: 6, fontFamily: SCSS.fontMono }}>
@@ -192,7 +193,6 @@ export default function App({ session, onLogout }: AppProps) {
               </div>
             )}
 
-            {/* Nav */}
             {PAGES.map(p => (
               <button
                 key={p.id}
@@ -209,14 +209,12 @@ export default function App({ session, onLogout }: AppProps) {
               </button>
             ))}
 
-            {/* Save indicator */}
             {sidebarOpen && (
               <div className="sidebar-save-indicator" style={{ margin: "8px 14px 0", fontSize: 11, color: saveIndicator ? SCSS.accentGreen : "transparent", transition: "color 0.3s", textAlign: "center", fontFamily: SCSS.fontMono }}>
                 ✓ Sauvegardé
               </div>
             )}
 
-            {/* Logout */}
             {onLogout && (
               <button
                 className="btn-ghost sidebar-logout"
@@ -235,7 +233,6 @@ export default function App({ session, onLogout }: AppProps) {
               </button>
             )}
 
-            {/* Collapse */}
             <button
               className="btn-ghost sidebar-collapse"
               onClick={() => setSidebarOpen(s => !s)}
@@ -246,7 +243,7 @@ export default function App({ session, onLogout }: AppProps) {
           </aside>
         )}
 
-        {/* ── BOTTOM NAV — mobile ── */}
+        {/* ── BOTTOM NAV mobile ── */}
         {isMobile && (
           <nav style={{
             position: "fixed", left: 0, right: 0, bottom: 0,
@@ -260,11 +257,7 @@ export default function App({ session, onLogout }: AppProps) {
                 key={p.id}
                 className={`nav-btn ${page === p.id ? "active" : ""}`}
                 onClick={() => setPage(p.id)}
-                style={{
-                  flexDirection: "column", gap: 2, padding: "6px 10px",
-                  minWidth: 52, fontSize: 10, alignItems: "center",
-                  flexShrink: 0, height: "100%",
-                }}
+                style={{ flexDirection: "column", gap: 2, padding: "6px 10px", minWidth: 52, fontSize: 10, alignItems: "center", flexShrink: 0, height: "100%" }}
               >
                 <span style={{ fontSize: 20 }}>{p.icon}</span>
                 {p.label.length > 8 ? p.label.slice(0, 7) + "…" : p.label}
@@ -275,7 +268,6 @@ export default function App({ session, onLogout }: AppProps) {
                 )}
               </button>
             ))}
-            {/* Bouton "Plus" pour accéder aux pages cachées */}
             <button
               className={`nav-btn ${["analysis","simulation","reports","profile","settings"].includes(page) ? "active" : ""}`}
               onClick={() => setPage(page === "settings" ? "dashboard" : "settings")}
@@ -287,7 +279,7 @@ export default function App({ session, onLogout }: AppProps) {
           </nav>
         )}
 
-        {/* ── MAIN CONTENT ── */}
+        {/* ── MAIN ── */}
         <main
           className="main-content"
           style={{
@@ -299,7 +291,6 @@ export default function App({ session, onLogout }: AppProps) {
             minHeight: "100vh",
           }}
         >
-          {/* Header */}
           <div className="app-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, gap: 12, flexWrap: "wrap" }}>
             <div>
               <h1 style={{ margin: 0, fontSize: isMobile ? 20 : 24, fontWeight: 800, fontFamily: SCSS.fontDisplay, letterSpacing: -0.8 }}>
@@ -332,7 +323,6 @@ export default function App({ session, onLogout }: AppProps) {
             </div>
           </div>
 
-          {/* Bandeau d'erreur */}
           {dataError && (
             <div style={{
               marginBottom: 16, padding: "10px 16px",
@@ -348,11 +338,9 @@ export default function App({ session, onLogout }: AppProps) {
           {renderPage()}
         </main>
 
-        {/* AiChat — plein écran sur mobile */}
         {chatOpen && (
           <div className="ai-chat-panel" style={isMobile ? {
-            position: "fixed", left: 0, right: 0, bottom: 60, top: 0,
-            zIndex: 999,
+            position: "fixed", left: 0, right: 0, bottom: 60, top: 0, zIndex: 999,
           } : {}}>
             <AiChat data={data} onClose={() => setChatOpen(false)} />
           </div>
