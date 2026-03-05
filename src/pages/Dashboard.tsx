@@ -1,5 +1,4 @@
 import type { FC } from "react";
-
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
 import KpiCard from "../components/KpiCard";
 import EmptyState from "../components/EmptyState";
@@ -16,7 +15,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
   const { investments = [], dividends = [], accounts = {}, portfolioHistory = [] } = data;
 
   const totalInvested = investments.reduce((s, i) => s + (Number(i.invested) || 0), 0);
-  const totalCurrent  = investments.reduce((s, i) => s + (Number(i.current) || 0), 0);
+  const totalCurrent  = investments.reduce((s, i) => s + (Number(i.current)  || 0), 0);
   const totalDiv      = dividends.reduce((s, d) => s + (Number(d.amount) || 0), 0);
   const perf  = parseFloat(pct(totalInvested, totalCurrent));
   const empty = investments.length === 0;
@@ -27,8 +26,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
     sectorMap[s] = (sectorMap[s] || 0) + (Number(i.current) || 0);
   });
   const sectorData = Object.entries(sectorMap).map(([name, value], idx) => ({
-    name,
-    value: Math.round((value / totalCurrent) * 100) || 0,
+    name, value: Math.round((value / totalCurrent) * 100) || 0,
     color: SECTOR_COLORS[idx % SECTOR_COLORS.length],
   }));
 
@@ -36,18 +34,23 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
 
   return (
     <div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 28 }}>
+      {/* KPI cards — kpi-grid devient 2 colonnes sur tablette/mobile via CSS */}
+      <div
+        className="kpi-grid"
+        style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 14, marginBottom: 28 }}
+      >
         <KpiCard icon="💼" label="Valeur totale" value={fmtE(totalCurrent)} sub={`${perf >= 0 ? "+" : ""}${perf}% all time`} color={SCSS.accentCyan} trend={perf >= 0 ? "up" : "down"} empty={empty} />
-        <KpiCard icon="🏛️" label="PEA" value={fmtE(accounts.pea)} color={SCSS.accentViolet} empty={!accounts.pea} />
-        <KpiCard icon="🏦" label="Compte courant" value={fmtE(accounts.cc)} color={SCSS.accentGreen} empty={!accounts.cc} />
-        <KpiCard icon="💰" label="Dividendes reçus" value={fmtE(totalDiv)} color={SCSS.accentAmber} empty={!totalDiv} />
+        <KpiCard icon="🏛️" label="PEA"            value={fmtE(accounts.pea)} color={SCSS.accentViolet} empty={!accounts.pea} />
+        <KpiCard icon="🏦" label="Compte courant" value={fmtE(accounts.cc)}  color={SCSS.accentGreen}  empty={!accounts.cc} />
+        <KpiCard icon="💰" label="Dividendes"     value={fmtE(totalDiv)}     color={SCSS.accentAmber}  empty={!totalDiv} />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginBottom: 28 }}>
+      {/* Charts row — grid-2col devient 1 col sur tablette/mobile */}
+      <div className="grid-2col" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 14, marginBottom: 28 }}>
         <div className="card fade-up fade-up-1">
           <div className="card-title">Évolution du portefeuille</div>
           {portfolioHistory.length < 2 ? (
-            <EmptyState icon="📉" msg="Pas encore d'historique" sub="Ajoutez des snapshots dans Transactions pour voir l'évolution" />
+            <EmptyState icon="📉" msg="Pas encore d'historique" sub="Ajoutez des snapshots dans Transactions" />
           ) : (
             <ResponsiveContainer width="100%" height={200}>
               <AreaChart data={histData}>
@@ -100,6 +103,7 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
         </div>
       </div>
 
+      {/* Positions table avec scroll horizontal sur mobile */}
       <div className="card fade-up fade-up-3">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
           <span className="card-title" style={{ marginBottom: 0 }}>Positions</span>
@@ -108,35 +112,39 @@ const Dashboard: FC<DashboardProps> = ({ data, setPage }) => {
         {investments.length === 0 ? (
           <EmptyState icon="📊" msg="Aucun investissement" sub="Allez dans Portefeuille pour ajouter vos positions" onCta={() => setPage("portfolio")} cta="+ Ajouter" />
         ) : (
-          <table className="data-table">
-            <thead><tr>
-              <th>Actif</th><th>Investi</th><th>Valeur actuelle</th><th>Perf. %</th><th>Gain €</th>
-            </tr></thead>
-            <tbody>
-              {investments.slice(0, 5).map(inv => {
-                const p = parseFloat(pct(inv.invested, inv.current));
-                const g = (Number(inv.current) || 0) - (Number(inv.invested) || 0);
-                return (
-                  <tr key={inv.id}>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{inv.name || "—"}</div>
-                      <div style={{ fontSize: 11, color: SCSS.textMuted, fontFamily: SCSS.fontMono }}>{inv.ticker}</div>
-                    </td>
-                    <td>{fmtE(inv.invested)}</td>
-                    <td style={{ fontWeight: 600 }}>{fmtE(inv.current)}</td>
-                    <td>
-                      <span className={`badge ${p >= 0 ? "badge-green" : "badge-red"}`}>
-                        {p >= 0 ? "+" : ""}{p}%
-                      </span>
-                    </td>
-                    <td style={{ color: g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily: SCSS.fontMono }}>
-                      {g >= 0 ? "+" : ""}{fmtE(g)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="data-table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Actif</th><th>Investi</th><th>Valeur actuelle</th><th>Perf. %</th><th>Gain €</th>
+                </tr>
+              </thead>
+              <tbody>
+                {investments.slice(0, 5).map(inv => {
+                  const p = parseFloat(pct(inv.invested, inv.current));
+                  const g = (Number(inv.current) || 0) - (Number(inv.invested) || 0);
+                  return (
+                    <tr key={inv.id}>
+                      <td>
+                        <div style={{ fontWeight: 600 }}>{inv.name || "—"}</div>
+                        <div style={{ fontSize: 11, color: SCSS.textMuted, fontFamily: SCSS.fontMono }}>{inv.ticker}</div>
+                      </td>
+                      <td>{fmtE(inv.invested)}</td>
+                      <td style={{ fontWeight: 600 }}>{fmtE(inv.current)}</td>
+                      <td>
+                        <span className={`badge ${p >= 0 ? "badge-green" : "badge-red"}`}>
+                          {p >= 0 ? "+" : ""}{p}%
+                        </span>
+                      </td>
+                      <td style={{ color: g >= 0 ? SCSS.accentGreen : SCSS.accentRed, fontFamily: SCSS.fontMono }}>
+                        {g >= 0 ? "+" : ""}{fmtE(g)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

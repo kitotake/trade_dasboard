@@ -1,13 +1,22 @@
-// ── Auth Storage ──────────────────────────────────────────────────────────────
+// ── src/utils/authStorage.ts ──────────────────────────────────────────────────
 // Gère la persistance des comptes utilisateurs et de la session active.
+//
+// ⚠️  SÉCURITÉ : bcryptjs est utilisé pour hasher les mots de passe côté client.
+// C'est mieux que simpleHash(), mais le stockage reste dans localStorage.
+// En production, migrez vers un backend avec PostgreSQL / Supabase / Firebase.
+//
 
-const USERS_KEY = "trade-dashboard_users_v1";
+
+import bcrypt from "bcryptjs";
+
+const USERS_KEY   = "trade-dashboard_users_v1";
 const SESSION_KEY = "trade-dashboard_session_v1";
+const SALT_ROUNDS = 10;
 
 export interface StoredUser {
   id: string;
   email: string;
-  passwordHash: string; // simple hash, pas de crypto réel côté client
+  passwordHash: string; // bcrypt hash
   name?: string;
   createdAt: string;
 }
@@ -16,15 +25,6 @@ export interface Session {
   userId: string;
   email: string;
   name?: string;
-}
-
-// Très simple "hash" côté client (ne pas utiliser en prod — utilisez un backend)
-function simpleHash(str: string): string {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = (Math.imul(31, h) + str.charCodeAt(i)) | 0;
-  }
-  return h.toString(16);
 }
 
 // ── Users ──────────────────────────────────────────────────────────────────────
@@ -44,21 +44,22 @@ function saveUsers(users: StoredUser[]): void {
   } catch {}
 }
 
-// Seed les comptes de test s'ils n'existent pas encore
-function ensureTestUsers(): void {
+/** Seed les comptes de test en dev (hash bcrypt généré une seule fois) */
+async function ensureTestUsers(): Promise<void> {
   const users = loadUsers();
   const testAccounts = [
-    { email: "dev@test.com",       password: "Dev123!",     name: "Dev" },
-    { email: "alice@example.com",  password: "password123", name: "Alice" },
-    { email: "bob@example.com",    password: "password123", name: "Bob" },
+    { email: "dev@test.com",      password: "Dev123!",     name: "Dev"   },
+    { email: "alice@example.com", password: "password123", name: "Alice" },
+    { email: "bob@example.com",   password: "password123", name: "Bob"   },
   ];
   let changed = false;
   for (const t of testAccounts) {
     if (!users.find(u => u.email === t.email)) {
+      const passwordHash = await bcrypt.hash(t.password, SALT_ROUNDS);
       users.push({
         id: Math.random().toString(36).slice(2, 9),
         email: t.email,
-        passwordHash: simpleHash(t.password),
+        passwordHash,
         name: t.name,
         createdAt: new Date().toISOString(),
       });
@@ -68,25 +69,30 @@ function ensureTestUsers(): void {
   if (changed) saveUsers(users);
 }
 
-// ── API publique ────────────────────────────────────────────────────────────────
+// ── API publique — async (bcrypt est asynchrone) ────────────────────────────────
 
 export type RegisterResult =
   | { ok: true;  user: StoredUser }
   | { ok: false; error: string };
 
-export function register(email: string, password: string, name?: string): RegisterResult {
-  ensureTestUsers();
-  const users = loadUsers();
+export async function register(
+  email: string,
+  password: string,
+  name?: string
+): Promise<RegisterResult> {
+  await ensureTestUsers();
+  const users     = loadUsers();
   const trimEmail = email.trim().toLowerCase();
 
   if (users.find(u => u.email === trimEmail)) {
     return { ok: false, error: "Un compte avec cet email existe déjà." };
   }
 
+  const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
   const user: StoredUser = {
     id: Math.random().toString(36).slice(2, 9),
     email: trimEmail,
-    passwordHash: simpleHash(password),
+    passwordHash,
     name: name?.trim() || undefined,
     createdAt: new Date().toISOString(),
   };
@@ -99,16 +105,20 @@ export type LoginResult =
   | { ok: true;  user: StoredUser }
   | { ok: false; error: string };
 
-export function login(email: string, password: string): LoginResult {
-  ensureTestUsers();
-  const users = loadUsers();
+export async function login(email: string, password: string): Promise<LoginResult> {
+  await ensureTestUsers();
+  const users     = loadUsers();
   const trimEmail = email.trim().toLowerCase();
-  const user = users.find(u => u.email === trimEmail);
+  const user      = users.find(u => u.email === trimEmail);
 
   if (!user) {
+    // Délai constant pour éviter le timing attack (même si côté client)
+    await bcrypt.hash("dummy", SALT_ROUNDS);
     return { ok: false, error: "Email ou mot de passe incorrect." };
   }
-  if (user.passwordHash !== simpleHash(password)) {
+
+  const match = await bcrypt.compare(password, user.passwordHash);
+  if (!match) {
     return { ok: false, error: "Email ou mot de passe incorrect." };
   }
   return { ok: true, user };

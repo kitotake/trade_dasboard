@@ -8,14 +8,14 @@ type Props = {
 };
 
 export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name,     setName]     = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirm,  setConfirm]  = useState("");
+  const [error,    setError]    = useState("");
+  const [loading,  setLoading]  = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -33,19 +33,18 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
     }
 
     setLoading(true);
-    const result = register(email, password, name || undefined);
-    setLoading(false);
-
-    if (result.ok) {
-      // Créer la session directement après inscription
-      saveSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-      });
-      onRegister?.();
-    } else {
-      setError(result.error);
+    try {
+      const result = await register(email, password, name || undefined);
+      if (result.ok) {
+        saveSession({ userId: result.user.id, email: result.user.email, name: result.user.name });
+        onRegister?.();
+      } else {
+        setError(result.error);
+      }
+    } catch {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -66,50 +65,23 @@ export default function RegisterScreen({ onRegister, onSwitchToLogin }: Props) {
           <div className={styles.fields}>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Prénom / Nom <span style={{ color: "rgba(255,255,255,0.2)" }}>(optionnel)</span></label>
-              <input
-                className={styles.input}
-                type="text"
-                placeholder="Jean Dupont"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                autoComplete="name"
-              />
+              <input className={styles.input} type="text" placeholder="Jean Dupont" value={name}
+                onChange={e => setName(e.target.value)} autoComplete="name" />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Adresse email *</label>
-              <input
-                className={styles.input}
-                type="email"
-                placeholder="jean@exemple.fr"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                autoComplete="email"
-                required
-              />
+              <input className={styles.input} type="email" placeholder="jean@exemple.fr" value={email}
+                onChange={e => setEmail(e.target.value)} autoComplete="email" required />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Mot de passe *</label>
-              <input
-                className={styles.input}
-                type="password"
-                placeholder="Minimum 6 caractères"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
+              <input className={styles.input} type="password" placeholder="Minimum 6 caractères" value={password}
+                onChange={e => setPassword(e.target.value)} autoComplete="new-password" required />
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.label}>Confirmer le mot de passe *</label>
-              <input
-                className={styles.input}
-                type="password"
-                placeholder="••••••••"
-                value={confirm}
-                onChange={e => setConfirm(e.target.value)}
-                autoComplete="new-password"
-                required
-              />
+              <input className={styles.input} type="password" placeholder="••••••••" value={confirm}
+                onChange={e => setConfirm(e.target.value)} autoComplete="new-password" required />
             </div>
           </div>
 

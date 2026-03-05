@@ -8,12 +8,12 @@ type Props = {
 };
 
 export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
-  const [email, setEmail] = useState("");
+  const [email,    setEmail]    = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error,    setError]    = useState("");
+  const [loading,  setLoading]  = useState(false);
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -23,19 +23,18 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
     }
 
     setLoading(true);
-    const result = login(email, password);
-    setLoading(false);
-
-    if (result.ok) {
-      // Persist session so RootNavigator peut la relire au rechargement
-      saveSession({
-        userId: result.user.id,
-        email: result.user.email,
-        name: result.user.name,
-      });
-      onLogin?.();
-    } else {
-      setError(result.error);
+    try {
+      const result = await login(email, password);
+      if (result.ok) {
+        saveSession({ userId: result.user.id, email: result.user.email, name: result.user.name });
+        onLogin?.();
+      } else {
+        setError(result.error);
+      }
+    } catch {
+      setError("Une erreur est survenue. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,17 +84,13 @@ export default function LoginScreen({ onLogin, onSwitchToRegister }: Props) {
           </button>
         </form>
 
-        {/* Comptes de test visibles en dev uniquement */}
         {import.meta.env.DEV && (
           <div style={{
-            marginTop: 12,
-            padding: "10px 14px",
+            marginTop: 12, padding: "10px 14px",
             background: "rgba(110,231,247,0.06)",
             border: "1px solid rgba(110,231,247,0.15)",
-            borderRadius: 10,
-            fontSize: 12,
-            color: "rgba(255,255,255,0.4)",
-            lineHeight: 1.7,
+            borderRadius: 10, fontSize: 12,
+            color: "rgba(255,255,255,0.4)", lineHeight: 1.7,
           }}>
             <strong style={{ color: "rgba(255,255,255,0.55)" }}>Comptes de test</strong><br />
             dev@test.com / Dev123!<br />
